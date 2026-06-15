@@ -7,263 +7,134 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #ffffff;
-    --bg2: #f6f6f4;
-    --bg3: #f0efec;
-    --text: #1a1a1a;
-    --text2: #6b6b68;
-    --border: rgba(0,0,0,0.12);
-    --border2: rgba(0,0,0,0.22);
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --red: #E24B4A;
-    --red-dark: #c43c3b;
+    --bg: #ffffff; --bg2: #f6f6f4; --bg3: #f0efec;
+    --text: #1a1a1a; --text2: #6b6b68;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+    --radius-md: 8px; --radius-lg: 12px;
+    --red: #E24B4A; --red-dark: #c43c3b;
   }
-
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1c1a;
-      --bg2: #252523;
-      --bg3: #2e2e2b;
-      --text: #f0efec;
-      --text2: #9a9a96;
-      --border: rgba(255,255,255,0.12);
-      --border2: rgba(255,255,255,0.22);
-    }
+    :root { --bg:#1c1c1a; --bg2:#252523; --bg3:#2e2e2b; --text:#f0efec; --text2:#9a9a96; --border:rgba(255,255,255,0.12); --border2:rgba(255,255,255,0.22); }
   }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; padding: 1.5rem; }
+  .card { background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border); max-width: 1200px; margin: 0 auto; overflow: hidden; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg3);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 1.5rem;
-  }
-
-  .card {
-    background: var(--bg);
-    border-radius: var(--radius-lg);
-    border: 0.5px solid var(--border);
-    max-width: 1100px;
-    margin: 0 auto;
-    overflow: hidden;
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 0.5px solid var(--border);
-  }
-
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); }
   .logo { display: flex; align-items: center; gap: 10px; }
   .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
   .logo-name { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
   .logo-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
   .last-update { font-size: 12px; color: var(--text2); }
 
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 1rem 1.5rem;
-    border-bottom: 0.5px solid var(--border);
-  }
-
-  .stat {
-    background: var(--bg2);
-    border-radius: var(--radius-md);
-    padding: 0.75rem 1rem;
-  }
-  .stat-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
-  .stat-value { font-size: 24px; font-weight: 600; }
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 1rem 1.5rem; border-bottom: 0.5px solid var(--border); }
+  .stat { background: var(--bg2); border-radius: var(--radius-md); padding: 0.75rem 1rem; }
+  .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; line-height: 1.3; }
+  .stat-value { font-size: 22px; font-weight: 600; }
   .stat-value.accent { color: var(--red); }
+  .stat-value.warn { color: #854F0B; }
+  .stat-value.alert { color: #A32D2D; }
+  .stat-value.ok { color: #0F6E56; }
 
-  .toolbar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0.875rem 1.5rem;
-    border-bottom: 0.5px solid var(--border);
-    flex-wrap: wrap;
-  }
-
+  .toolbar { display: flex; align-items: center; gap: 8px; padding: 0.875rem 1.5rem; border-bottom: 0.5px solid var(--border); flex-wrap: wrap; }
   .search-wrap { position: relative; flex: 1; min-width: 160px; }
   .search-wrap input { width: 100%; padding-left: 32px; }
   .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 15px; color: var(--text2); pointer-events: none; }
 
-  input, select, textarea {
-    background: var(--bg);
-    color: var(--text);
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius-md);
-    padding: 8px 12px;
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s;
-  }
+  input, select, textarea { background: var(--bg); color: var(--text); border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 8px 12px; font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.15s; }
   input:focus, select:focus, textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(226,75,74,0.12); }
 
-  .filter-select { min-width: 140px; }
-
-  .btn-add {
-    background: var(--red);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-md);
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    font-family: inherit;
-    transition: background 0.15s;
-  }
+  .btn-add { background: var(--red); color: #fff; border: none; border-radius: var(--radius-md); padding: 8px 14px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; font-family: inherit; }
   .btn-add:hover { background: var(--red-dark); }
 
   .table-wrap { overflow-x: auto; }
-
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th {
-    text-align: left;
-    padding: 10px 14px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 0.5px solid var(--border);
-    white-space: nowrap;
-    background: var(--bg2);
-  }
-  td { padding: 11px 14px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 780px; }
+  th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 0.5px solid var(--border); white-space: nowrap; background: var(--bg2); }
+  td { padding: 11px 12px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: var(--bg2); }
-
   .empresa-name { font-weight: 500; }
-  .feedback-cell { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text2); font-size: 12px; }
 
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 9px;
-    border-radius: 99px;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
+  .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
   .badge.pendente   { background: #FAEEDA; color: #854F0B; }
   .badge.negociando { background: #E6F1FB; color: #185FA5; }
   .badge.ativo      { background: #EAF3DE; color: #3B6D11; }
   .badge.convertido { background: #E1F5EE; color: #0F6E56; }
   .badge.perdido    { background: #FCEBEB; color: #A32D2D; }
 
-  .btn-icon {
-    background: none;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius-md);
-    padding: 5px 8px;
-    cursor: pointer;
-    font-size: 15px;
-    color: var(--text2);
-    margin-right: 4px;
-    font-family: inherit;
-    transition: background 0.1s;
-  }
-  .btn-icon:hover { background: var(--bg2); }
+  /* Badge de renovação */
+  .renov-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .renov-ok      { background: #EAF3DE; color: #3B6D11; }
+  .renov-janela  { background: #FAEEDA; color: #854F0B; }
+  .renov-urgente { background: #FCEBEB; color: #A32D2D; }
+  .renov-vencido { background: #F1EFE8; color: #5F5E5A; }
+  .renov-none    { background: var(--bg2); color: var(--text2); }
 
-  .empty {
-    text-align: center;
-    padding: 3.5rem 1rem;
-    color: var(--text2);
-    font-size: 14px;
-  }
+  .btn-icon { background: none; border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 5px 8px; cursor: pointer; font-size: 15px; color: var(--text2); margin-right: 4px; font-family: inherit; }
+  .btn-icon:hover { background: var(--bg2); }
+  .btn-notes { position: relative; background: none; border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 5px 8px; cursor: pointer; font-size: 15px; color: var(--text2); margin-right: 4px; font-family: inherit; }
+  .btn-notes:hover { background: var(--bg2); }
+  .notes-count { position: absolute; top: -5px; right: -5px; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; border-radius: 99px; min-width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
+
+  .empty { text-align: center; padding: 3.5rem 1rem; color: var(--text2); font-size: 14px; }
   .empty i { font-size: 36px; display: block; margin-bottom: 10px; }
 
   /* Modal */
-  .overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.4);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-    padding: 1rem;
-  }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
   .overlay.open { display: flex; }
-
-  .modal {
-    background: var(--bg);
-    border-radius: var(--radius-lg);
-    border: 0.5px solid var(--border);
-    padding: 1.5rem;
-    width: 100%;
-    max-width: 480px;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.25rem;
-  }
+  .modal { background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 1.5rem; width: 100%; max-width: 500px; max-height: 92vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
   .modal-title { font-size: 16px; font-weight: 600; }
-  .modal-close {
-    background: none; border: none; font-size: 20px; cursor: pointer;
-    color: var(--text2); line-height: 1; padding: 2px 6px;
-  }
-
+  .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text2); }
   .field { margin-bottom: 1rem; }
-  .field label {
-    display: block; font-size: 11px; color: var(--text2);
-    margin-bottom: 5px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.4px;
-  }
-  .field input, .field select, .field textarea { width: 100%; }
-  .field textarea { height: 90px; resize: vertical; }
-
-  .modal-footer {
-    display: flex; justify-content: flex-end;
-    gap: 8px; margin-top: 1.25rem;
-  }
-  .btn-cancel {
-    background: none;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius-md);
-    padding: 8px 16px; font-size: 13px;
-    cursor: pointer; color: var(--text); font-family: inherit;
-  }
-  .btn-save {
-    background: var(--red); color: #fff; border: none;
-    border-radius: var(--radius-md); padding: 8px 16px;
-    font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
-  }
+  .field label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+  .field input, .field select { width: 100%; }
+  .field-hint { font-size: 11px; color: var(--text2); margin-top: 4px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .section-divider { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text2); border-bottom: 0.5px solid var(--border); padding-bottom: 6px; margin: 1.25rem 0 1rem; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.25rem; }
+  .btn-cancel { background: none; border: 0.5px solid var(--border2); border-radius: var(--radius-md); padding: 8px 16px; font-size: 13px; cursor: pointer; color: var(--text); font-family: inherit; }
+  .btn-save { background: var(--red); color: #fff; border: none; border-radius: var(--radius-md); padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .btn-save:hover { background: var(--red-dark); }
-
   .error-msg { font-size: 11px; color: var(--red); margin-top: 4px; display: none; }
 
-  @media (max-width: 600px) {
+  /* Painel de notas */
+  .notes-panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; z-index: 300; }
+  .notes-panel-overlay.open { display: block; }
+  .notes-panel { position: fixed; top: 0; right: -440px; width: 440px; max-width: 100vw; height: 100vh; background: var(--bg); border-left: 0.5px solid var(--border); display: flex; flex-direction: column; z-index: 301; transition: right 0.25s ease; }
+  .notes-panel.open { right: 0; }
+  .notes-panel-header { padding: 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+  .notes-panel-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .notes-panel-title { font-size: 15px; font-weight: 600; }
+  .notes-panel-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text2); flex-shrink: 0; }
+  .renov-info-box { background: var(--bg2); border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .renov-info-label { color: var(--text2); }
+  .notes-feed { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 10px; }
+  .note-item { background: var(--bg2); border-radius: var(--radius-md); padding: 0.875rem 1rem; }
+  .note-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .note-date { font-size: 11px; color: var(--text2); font-weight: 500; }
+  .note-delete { background: none; border: none; cursor: pointer; color: var(--text2); font-size: 14px; padding: 0; opacity: 0.5; }
+  .note-delete:hover { opacity: 1; color: var(--red); }
+  .note-text { font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+  .notes-empty { text-align: center; padding: 2rem; color: var(--text2); font-size: 13px; }
+  .notes-empty i { font-size: 28px; display: block; margin-bottom: 8px; }
+  .notes-input-area { padding: 1rem 1.5rem; border-top: 0.5px solid var(--border); flex-shrink: 0; }
+  .notes-input-area textarea { width: 100%; height: 80px; resize: none; font-size: 13px; margin-bottom: 8px; }
+  .btn-add-note { background: var(--red); color: #fff; border: none; border-radius: var(--radius-md); padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; width: 100%; }
+  .btn-add-note:hover { background: var(--red-dark); }
+
+  @media (max-width: 640px) {
     body { padding: 0.75rem; }
-    .stats { grid-template-columns: repeat(3,1fr); gap: 6px; }
-    .stat-value { font-size: 20px; }
+    .stats { grid-template-columns: repeat(3,1fr); }
+    .stats .stat:nth-child(4), .stats .stat:nth-child(5) { display: none; }
     .toolbar { flex-direction: column; align-items: stretch; }
-    .search-wrap { width: 100%; }
-    .filter-select { width: 100%; }
-    .btn-add { width: 100%; justify-content: center; }
+    .btn-add { justify-content: center; }
+    .notes-panel { width: 100vw; }
+    .field-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
-
 <div class="card">
   <div class="header">
     <div class="logo">
@@ -277,26 +148,19 @@
   </div>
 
   <div class="stats">
-    <div class="stat">
-      <div class="stat-label">Total de empresas</div>
-      <div class="stat-value" id="stat-total">0</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Em negociação</div>
-      <div class="stat-value" id="stat-neg">0</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Convertidos</div>
-      <div class="stat-value accent" id="stat-conv">0</div>
-    </div>
+    <div class="stat"><div class="stat-label">Total de empresas</div><div class="stat-value" id="stat-total">0</div></div>
+    <div class="stat"><div class="stat-label">Em negociação</div><div class="stat-value" id="stat-neg">0</div></div>
+    <div class="stat"><div class="stat-label">Convertidos</div><div class="stat-value accent" id="stat-conv">0</div></div>
+    <div class="stat"><div class="stat-label">Na janela (90–120d)</div><div class="stat-value warn" id="stat-janela">0</div></div>
+    <div class="stat"><div class="stat-label">Renovação urgente</div><div class="stat-value alert" id="stat-urgente">0</div></div>
   </div>
 
   <div class="toolbar">
     <div class="search-wrap">
       <i class="ti ti-search search-icon"></i>
-      <input type="text" id="search-input" placeholder="Buscar empresa ou feedback..." oninput="renderTable()">
+      <input type="text" id="search-input" placeholder="Buscar empresa..." oninput="renderTable()">
     </div>
-    <select class="filter-select" id="filter-status" onchange="renderTable()">
+    <select id="filter-status" onchange="renderTable()" style="min-width:140px">
       <option value="">Todos os status</option>
       <option value="pendente">Pendente</option>
       <option value="negociando">Negociando</option>
@@ -304,20 +168,26 @@
       <option value="convertido">Convertido</option>
       <option value="perdido">Perdido</option>
     </select>
-    <button class="btn-add" onclick="openModal()">
-      <i class="ti ti-plus"></i> Nova empresa
-    </button>
+    <select id="filter-renov" onchange="renderTable()" style="min-width:150px">
+      <option value="">Todas as renovações</option>
+      <option value="urgente">Urgente (&lt;90d)</option>
+      <option value="janela">Na janela (90–120d)</option>
+      <option value="ok">Com tempo (&gt;120d)</option>
+    </select>
+    <button class="btn-add" onclick="openModal()"><i class="ti ti-plus"></i> Nova empresa</button>
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th style="width:22%">Empresa</th>
-          <th style="width:13%">Início do atend.</th>
-          <th style="width:12%">Status</th>
-          <th>Feedback / observações</th>
-          <th style="width:100px">Ações</th>
+          <th style="width:20%">Empresa</th>
+          <th style="width:11%">Início atend.</th>
+          <th style="width:11%">Status</th>
+          <th style="width:13%">Aniversário</th>
+          <th style="width:15%">Renovação</th>
+          <th style="width:20%">Última anotação</th>
+          <th style="width:10%">Ações</th>
         </tr>
       </thead>
       <tbody id="table-body"></tbody>
@@ -329,37 +199,51 @@
   </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal empresa -->
 <div class="overlay" id="modal-overlay">
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title" id="modal-title">Nova empresa</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
+
     <div class="field">
       <label>Nome da empresa *</label>
       <input type="text" id="f-empresa" placeholder="Ex.: Construtora ABC Ltda">
       <div class="error-msg" id="err-empresa">Preencha o nome da empresa.</div>
     </div>
-    <div class="field">
-      <label>Data de início do atendimento *</label>
-      <input type="date" id="f-data">
-      <div class="error-msg" id="err-data">Selecione uma data.</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Início do atendimento *</label>
+        <input type="date" id="f-data">
+        <div class="error-msg" id="err-data">Selecione uma data.</div>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="pendente">Pendente</option>
+          <option value="negociando">Negociando</option>
+          <option value="ativo">Ativo</option>
+          <option value="convertido">Convertido</option>
+          <option value="perdido">Perdido</option>
+        </select>
+      </div>
     </div>
+
+    <div class="section-divider"><i class="ti ti-calendar-event" style="vertical-align:-2px;margin-right:4px;"></i>Contrato & Renovação</div>
+
     <div class="field">
-      <label>Status</label>
-      <select id="f-status">
-        <option value="pendente">Pendente</option>
-        <option value="negociando">Negociando</option>
-        <option value="ativo">Ativo</option>
-        <option value="convertido">Convertido</option>
-        <option value="perdido">Perdido</option>
-      </select>
+      <label>Data de aniversário do contrato</label>
+      <input type="date" id="f-aniversario">
+      <div class="field-hint">Data em que o contrato renova todo ano. O sistema calcula automaticamente quando a janela de 90–120 dias abre.</div>
     </div>
+
     <div class="field">
-      <label>Feedback / observações</label>
-      <textarea id="f-feedback" placeholder="Ex.: Interessado em plano PME, aguardando proposta. Contato: Ana Silva — (11) 91234-5678"></textarea>
+      <label>Observação sobre o contrato</label>
+      <input type="text" id="f-obs-contrato" placeholder="Ex.: Plano Bradesco PME, 42 vidas, R$ 890/vida">
     </div>
+
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
       <button class="btn-save" onclick="saveEntry()">Salvar</button>
@@ -367,46 +251,110 @@
   </div>
 </div>
 
+<!-- Painel de notas -->
+<div class="notes-panel-overlay" id="notes-overlay" onclick="closeNotes()"></div>
+<div class="notes-panel" id="notes-panel">
+  <div class="notes-panel-header">
+    <div class="notes-panel-top">
+      <div>
+        <div class="notes-panel-title" id="notes-panel-title"></div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;" id="notes-panel-sub"></div>
+      </div>
+      <button class="notes-panel-close" onclick="closeNotes()">✕</button>
+    </div>
+    <div class="renov-info-box" id="renov-info-box" style="display:none"></div>
+  </div>
+  <div class="notes-feed" id="notes-feed"></div>
+  <div class="notes-input-area">
+    <textarea id="note-input" placeholder="Nova anotação... (Cmd+Enter para salvar)"></textarea>
+    <button class="btn-add-note" onclick="addNote()"><i class="ti ti-plus"></i> Adicionar anotação</button>
+  </div>
+</div>
+
 <script>
-const STORAGE_KEY = 'wiz_crm_v1';
+const STORAGE_KEY = 'wiz_crm_v3';
 let records = [];
+let activeNotesId = null;
 
-function load() {
-  try { records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { records = []; }
-}
+function load() { try { records = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch(e) { records=[]; } }
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); } catch(e){} }
 
-function save() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); } catch(e) {}
-}
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function fmtDate(d) {
   if (!d) return '—';
-  const [y, m, day] = d.split('-');
+  const [y,m,day] = d.split('-');
   return `${day}/${m}/${y}`;
+}
+function fmtDateTime(ts) {
+  const d = new Date(ts);
+  return `${d.toLocaleDateString('pt-BR')} às ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+/* Calcula dias até próximo aniversário anual */
+function diasParaRenovacao(aniversarioStr) {
+  if (!aniversarioStr) return null;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const [ay, am, ad] = aniversarioStr.split('-').map(Number);
+  let proximo = new Date(hoje.getFullYear(), am-1, ad);
+  if (proximo <= hoje) proximo = new Date(hoje.getFullYear()+1, am-1, ad);
+  return Math.round((proximo - hoje) / 86400000);
+}
+
+function renovStatus(aniversarioStr) {
+  const dias = diasParaRenovacao(aniversarioStr);
+  if (dias === null) return { tipo: 'none', dias: null };
+  if (dias <= 90)  return { tipo: 'urgente', dias };
+  if (dias <= 120) return { tipo: 'janela', dias };
+  return { tipo: 'ok', dias };
+}
+
+function renovBadge(aniversarioStr) {
+  if (!aniversarioStr) return `<span class="renov-badge renov-none">Sem data</span>`;
+  const { tipo, dias } = renovStatus(aniversarioStr);
+  const icons = { ok:'ti-circle-check', janela:'ti-alert-triangle', urgente:'ti-flame' };
+  const labels = {
+    ok:      `<i class="ti ${icons.ok}" style="font-size:12px"></i> ${dias}d restantes`,
+    janela:  `<i class="ti ${icons.janela}" style="font-size:12px"></i> Janela aberta • ${dias}d`,
+    urgente: `<i class="ti ${icons.urgente}" style="font-size:12px"></i> Urgente • ${dias}d`,
+  };
+  return `<span class="renov-badge renov-${tipo}">${labels[tipo]}</span>`;
 }
 
 const STATUS_LABELS = { pendente:'Pendente', negociando:'Negociando', ativo:'Ativo', convertido:'Convertido', perdido:'Perdido' };
-
-function badge(s) {
-  return `<span class="badge ${s}">${STATUS_LABELS[s] || s}</span>`;
-}
+function badge(s) { return `<span class="badge ${s}">${STATUS_LABELS[s]||s}</span>`; }
 
 function updateStats() {
   document.getElementById('stat-total').textContent = records.length;
-  document.getElementById('stat-neg').textContent = records.filter(r => r.status === 'negociando').length;
-  document.getElementById('stat-conv').textContent = records.filter(r => r.status === 'convertido').length;
+  document.getElementById('stat-neg').textContent = records.filter(r=>r.status==='negociando').length;
+  document.getElementById('stat-conv').textContent = records.filter(r=>r.status==='convertido').length;
+  document.getElementById('stat-janela').textContent = records.filter(r=>renovStatus(r.aniversario).tipo==='janela').length;
+  document.getElementById('stat-urgente').textContent = records.filter(r=>renovStatus(r.aniversario).tipo==='urgente').length;
   const now = new Date();
-  document.getElementById('last-update').textContent =
-    `Atualizado ${now.toLocaleDateString('pt-BR')} às ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  document.getElementById('last-update').textContent = `Atualizado ${now.toLocaleDateString('pt-BR')} às ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
 
 function renderTable() {
-  const q = document.getElementById('search-input').value.toLowerCase();
+  const q  = document.getElementById('search-input').value.toLowerCase();
   const fs = document.getElementById('filter-status').value;
+  const fr = document.getElementById('filter-renov').value;
+
   const rows = records.filter(r => {
-    const mq = r.empresa.toLowerCase().includes(q) || (r.feedback||'').toLowerCase().includes(q);
+    const mq = r.empresa.toLowerCase().includes(q);
     const ms = !fs || r.status === fs;
-    return mq && ms;
+    const mr = !fr || renovStatus(r.aniversario).tipo === fr;
+    return mq && ms && mr;
+  });
+
+  // Ordenar: urgente primeiro, depois janela, depois ok, depois sem data
+  const order = { urgente:0, janela:1, ok:2, none:3 };
+  rows.sort((a,b) => {
+    const oa = order[renovStatus(a.aniversario).tipo];
+    const ob = order[renovStatus(b.aniversario).tipo];
+    if (oa !== ob) return oa - ob;
+    const da = diasParaRenovacao(a.aniversario) ?? 9999;
+    const db = diasParaRenovacao(b.aniversario) ?? 9999;
+    return da - db;
   });
 
   const tbody = document.getElementById('table-body');
@@ -417,103 +365,167 @@ function renderTable() {
     empty.style.display = 'block';
   } else {
     empty.style.display = 'none';
-    tbody.innerHTML = rows.map(r => `
-      <tr>
-        <td><span class="empresa-name">${escHtml(r.empresa)}</span></td>
+    tbody.innerHTML = rows.map(r => {
+      const notes = r.notes || [];
+      const lastNote = notes.length ? notes[notes.length-1] : null;
+      const lastNoteHtml = lastNote
+        ? `<span style="color:var(--text2);font-size:12px;">${escHtml(lastNote.text.substring(0,50))}${lastNote.text.length>50?'…':''}</span>`
+        : `<span style="color:var(--text2);font-size:12px;font-style:italic;">—</span>`;
+
+      return `<tr>
+        <td>
+          <div class="empresa-name">${escHtml(r.empresa)}</div>
+          ${r.obsContrato ? `<div style="font-size:11px;color:var(--text2);margin-top:2px;">${escHtml(r.obsContrato)}</div>` : ''}
+        </td>
         <td>${fmtDate(r.data)}</td>
         <td>${badge(r.status)}</td>
-        <td><span class="feedback-cell" title="${escHtml(r.feedback||'')}">${escHtml(r.feedback||'—')}</span></td>
+        <td style="font-size:13px;">${r.aniversario ? fmtDate(r.aniversario) : '<span style="color:var(--text2)">—</span>'}</td>
+        <td>${renovBadge(r.aniversario)}</td>
+        <td>${lastNoteHtml}</td>
         <td>
+          <button class="btn-notes" onclick="openNotes('${r.id}')" title="Anotações">
+            <i class="ti ti-message-circle"></i>
+            ${notes.length ? `<span class="notes-count">${notes.length}</span>` : ''}
+          </button>
           <button class="btn-icon" onclick="openModal('${r.id}')" title="Editar"><i class="ti ti-edit"></i></button>
           <button class="btn-icon" onclick="deleteEntry('${r.id}')" title="Remover"><i class="ti ti-trash"></i></button>
         </td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
   }
   updateStats();
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
+/* Modal */
 let editId = null;
-
 function openModal(id) {
-  editId = id || null;
-  clearErrors();
+  editId = id||null;
+  document.querySelectorAll('.error-msg').forEach(el=>el.style.display='none');
   if (id) {
-    const r = records.find(x => x.id === id);
+    const r = records.find(x=>x.id===id);
     document.getElementById('modal-title').textContent = 'Editar empresa';
     document.getElementById('f-empresa').value = r.empresa;
     document.getElementById('f-data').value = r.data;
     document.getElementById('f-status').value = r.status;
-    document.getElementById('f-feedback').value = r.feedback || '';
+    document.getElementById('f-aniversario').value = r.aniversario||'';
+    document.getElementById('f-obs-contrato').value = r.obsContrato||'';
   } else {
     document.getElementById('modal-title').textContent = 'Nova empresa';
     document.getElementById('f-empresa').value = '';
     document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
     document.getElementById('f-status').value = 'pendente';
-    document.getElementById('f-feedback').value = '';
+    document.getElementById('f-aniversario').value = '';
+    document.getElementById('f-obs-contrato').value = '';
   }
   document.getElementById('modal-overlay').classList.add('open');
-  setTimeout(() => document.getElementById('f-empresa').focus(), 60);
+  setTimeout(()=>document.getElementById('f-empresa').focus(),60);
 }
-
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-  editId = null;
-}
-
-function clearErrors() {
-  document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
-}
-
-function showError(id) {
-  document.getElementById(id).style.display = 'block';
-}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); editId=null; }
 
 function saveEntry() {
-  clearErrors();
+  document.querySelectorAll('.error-msg').forEach(el=>el.style.display='none');
   const empresa = document.getElementById('f-empresa').value.trim();
   const data    = document.getElementById('f-data').value;
   const status  = document.getElementById('f-status').value;
-  const feedback = document.getElementById('f-feedback').value.trim();
-
+  const aniversario = document.getElementById('f-aniversario').value;
+  const obsContrato = document.getElementById('f-obs-contrato').value.trim();
   let valid = true;
-  if (!empresa) { showError('err-empresa'); valid = false; }
-  if (!data)    { showError('err-data');    valid = false; }
+  if (!empresa) { document.getElementById('err-empresa').style.display='block'; valid=false; }
+  if (!data)    { document.getElementById('err-data').style.display='block'; valid=false; }
   if (!valid) return;
 
   if (editId) {
-    const idx = records.findIndex(x => x.id === editId);
-    records[idx] = { ...records[idx], empresa, data, status, feedback };
+    const idx = records.findIndex(x=>x.id===editId);
+    records[idx] = { ...records[idx], empresa, data, status, aniversario, obsContrato };
   } else {
-    records.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), empresa, data, status, feedback });
+    records.push({ id:Date.now().toString(36)+Math.random().toString(36).slice(2,6), empresa, data, status, aniversario, obsContrato, notes:[] });
   }
-  save();
-  closeModal();
-  renderTable();
+  save(); closeModal(); renderTable();
 }
 
 function deleteEntry(id) {
-  const r = records.find(x => x.id === id);
+  const r = records.find(x=>x.id===id);
   if (!confirm(`Remover "${r.empresa}"?`)) return;
-  records = records.filter(x => x.id !== id);
-  save();
-  renderTable();
+  records = records.filter(x=>x.id!==id);
+  save(); renderTable();
 }
 
-document.getElementById('modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+/* Notas */
+function openNotes(id) {
+  activeNotesId = id;
+  const r = records.find(x=>x.id===id);
+  document.getElementById('notes-panel-title').textContent = r.empresa;
+  document.getElementById('notes-panel-sub').textContent = `Início: ${fmtDate(r.data)} · ${STATUS_LABELS[r.status]}`;
 
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeModal();
-});
+  const box = document.getElementById('renov-info-box');
+  if (r.aniversario) {
+    const { tipo, dias } = renovStatus(r.aniversario);
+    const colors = { ok:'#3B6D11', janela:'#854F0B', urgente:'#A32D2D', none:'' };
+    const msgs = {
+      ok:`Renovação em ${dias} dias — ${fmtDate(r.aniversario)}`,
+      janela:`⚠ Janela aberta! ${dias} dias para renovar — ${fmtDate(r.aniversario)}`,
+      urgente:`🔥 Urgente! Apenas ${dias} dias para a renovação — ${fmtDate(r.aniversario)}`,
+    };
+    box.style.display='flex';
+    box.innerHTML = `<span style="color:${colors[tipo]};font-weight:600;">${msgs[tipo]||''}</span>`;
+  } else {
+    box.style.display='none';
+  }
 
-load();
-renderTable();
+  renderNotes();
+  document.getElementById('notes-overlay').classList.add('open');
+  document.getElementById('notes-panel').classList.add('open');
+  document.getElementById('note-input').value='';
+  setTimeout(()=>document.getElementById('note-input').focus(),300);
+}
+
+function closeNotes() {
+  document.getElementById('notes-overlay').classList.remove('open');
+  document.getElementById('notes-panel').classList.remove('open');
+  activeNotesId=null;
+}
+
+function renderNotes() {
+  if (!activeNotesId) return;
+  const r = records.find(x=>x.id===activeNotesId);
+  const notes = r.notes||[];
+  const feed = document.getElementById('notes-feed');
+  if (notes.length===0) {
+    feed.innerHTML=`<div class="notes-empty"><i class="ti ti-message-circle"></i>Nenhuma anotação ainda.<br>Adicione a primeira abaixo.</div>`;
+    return;
+  }
+  feed.innerHTML=[...notes].reverse().map(n=>`
+    <div class="note-item">
+      <div class="note-meta">
+        <span class="note-date"><i class="ti ti-clock" style="font-size:11px;vertical-align:-1px;margin-right:3px;"></i>${fmtDateTime(n.ts)}</span>
+        <button class="note-delete" onclick="deleteNote('${n.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+      <div class="note-text">${escHtml(n.text)}</div>
+    </div>
+  `).join('');
+}
+
+function addNote() {
+  const text = document.getElementById('note-input').value.trim();
+  if (!text||!activeNotesId) return;
+  const r = records.find(x=>x.id===activeNotesId);
+  if (!r.notes) r.notes=[];
+  r.notes.push({ id:Date.now().toString(36)+Math.random().toString(36).slice(2,5), text, ts:Date.now() });
+  save(); document.getElementById('note-input').value=''; renderNotes(); renderTable();
+}
+
+function deleteNote(nid) {
+  if (!confirm('Remover esta anotação?')) return;
+  const r = records.find(x=>x.id===activeNotesId);
+  r.notes=r.notes.filter(n=>n.id!==nid);
+  save(); renderNotes(); renderTable();
+}
+
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal();closeNotes();}});
+document.getElementById('note-input').addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))addNote();});
+
+load(); renderTable();
 </script>
 </body>
 </html>
