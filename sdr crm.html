@@ -113,6 +113,9 @@
   .quick{display:flex;gap:5px}
   .qbtn{border:1px solid var(--border-strong);background:#fff;border-radius:7px;width:30px;height:30px;display:grid;place-items:center;color:var(--muted);transition:.1s;padding:0}
   .qbtn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+  .telpill{font-family:'JetBrains Mono';font-size:12px;color:var(--primary-ink);text-decoration:none;font-weight:600}
+  .telpill:hover{text-decoration:underline}
+  .telmiss{font-size:11.5px;color:var(--aproxima);font-weight:600;font-style:italic}
   .sec-h{padding:10px 16px;background:var(--janela-soft);color:var(--urgente);font-weight:700;font-size:12px;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
   .sec-h.cool{background:#F7F8FA;color:var(--muted)}
   .empty{padding:40px;text-align:center;color:var(--faint)}
@@ -324,7 +327,7 @@ const KEY = 'wizSdr.v1';
 let state = load();
 
 function defaults(l){
-  return Object.assign({stage:'novo', origem:'listagem', contato:{nome:'',cargo:'',email:'',insta:''},
+  return Object.assign({stage:'novo', origem:'listagem', insta:'', email:'', contato:{nome:'',cargo:'',email:'',insta:''},
     touches:[], nextAction:'', nextNote:'', notes:''}, l);
 }
 function load(){
@@ -415,7 +418,7 @@ function renderFila(){
     return (b.vidas||0)-(a.vidas||0);
   });
   if(!rows.length){ $('viewFila').innerHTML='<div class="list"><div class="empty">Nenhum lead com esses filtros. Ajuste acima ou adicione um lead.</div></div>'; return; }
-  const head = `<div class="lhead"><div></div><div>Empresa</div><div>Corretora atual</div><div style="text-align:right">Vidas</div><div>Vencimento</div><div>Etapa</div><div>Acionar</div></div>`;
+  const head = `<div class="lhead"><div></div><div>Empresa</div><div>Corretora atual</div><div style="text-align:right">Vidas</div><div>Vencimento</div><div>Etapa</div><div>Contato</div></div>`;
   let body='', lastZone=null;
   rows.forEach(l=>{
     const t=temp(l.venc);
@@ -426,31 +429,25 @@ function renderFila(){
         : `<div class="sec-h cool">Pipeline — monitorar / aproximando</div>`;
       lastZone=zone;
     }
-    const vlabel = l.venc ? `${MES[l.venc]} · ${t.months===0?'este mês':t.months+' '+(t.months===1?'mês':'meses')}` : '—';
+    const ult = l.touches.length ? l.touches[l.touches.length-1] : null;
+    const contatoCell = l.tel
+      ? `<a class="telpill" href="tel:${l.tel.replace(/[^0-9+]/g,'')}" title="Ligar">${esc(l.tel)}</a>`
+      : `<span class="telmiss">sem telefone</span>`;
     body += `<div class="lrow" data-id="${l.id}">
       <div class="dot t-${t.key}"></div>
-      <div class="empcell emp">${esc(l.empresa)}<div class="meta">${l.vidas?l.vidas.toLocaleString('pt-BR')+' vidas · ':''}${origemLabel(l.origem)}</div></div>
+      <div class="empcell emp">${esc(l.empresa)}<div class="meta">${l.vidas?l.vidas.toLocaleString('pt-BR')+' vidas · ':''}${origemLabel(l.origem)}${ult?' · último: '+(ult.pessoa?esc(ult.pessoa):(CH[ult.ch]||'contato')):''}</div></div>
       <div class="corr ${l.corretor?'':'none'}">${l.corretor?esc(l.corretor):'sem corretora'}</div>
       <div class="vidas">${(l.vidas||0).toLocaleString('pt-BR')}</div>
       <div class="venc">${MES[l.venc]||'—'}<div class="d">${l.venc?(t.months===0?'este mês':'em '+t.months+'m'):''}</div></div>
       <div class="stcell"><span class="st ${stageCls(l.stage)}">${stageLabel(l.stage)}</span></div>
-      <div class="quick">
-        ${qbtn('ligacao','📞')}${qbtn('whatsapp','💬')}${qbtn('email','✉️')}
-      </div>
+      <div class="quick">${contatoCell}</div>
     </div>`;
   });
   $('viewFila').innerHTML = `<div class="list">${head}${body}</div>`;
   document.querySelectorAll('#viewFila .lrow').forEach(r=>{
-    r.addEventListener('click',e=>{ if(e.target.closest('.qbtn'))return; openDrawer(+r.dataset.id); });
-  });
-  document.querySelectorAll('#viewFila .qbtn').forEach(b=>{
-    b.addEventListener('click',e=>{ e.stopPropagation();
-      const id=+b.closest('.lrow').dataset.id; logTouch(id,b.dataset.ch); toast(CH[b.dataset.ch]+' registrado');
-    });
+    r.addEventListener('click',e=>{ if(e.target.closest('a'))return; openDrawer(+r.dataset.id); });
   });
 }
-const qbtn=(ch,ic)=>`<button class="qbtn" data-ch="${ch}" title="${CH[ch]}">${ic}</button>`;
-
 /* ---------- render FUNIL (kanban) ---------- */
 function renderFunil(){
   const rows = filtered();
@@ -493,8 +490,8 @@ function openDrawer(id){
   const t=temp(l.venc);
   const msgWhats = genWhats(l), msgMail = genMail(l);
   const touchesHtml = l.touches.length ? l.touches.slice().reverse().map(tx=>`
-    <li><span class="tch">${CH[tx.ch]||tx.ch}</span><span class="tt">${fmtDate(tx.ts)}</span>${tx.note?`<span class="tn">${esc(tx.note)}</span>`:''}</li>`).join('')
-    : '<li style="color:var(--faint)">Nenhum toque registrado ainda.</li>';
+    <li><span class="tch">${tx.pessoa?esc(tx.pessoa):'—'}${tx.ch?` <span style="color:var(--faint);font-weight:500">· ${CH[tx.ch]||tx.ch}</span>`:''}</span><span class="tt">${fmtDate(tx.ts)}</span>${tx.note?`<span class="tn">${esc(tx.note)}</span>`:''}</li>`).join('')
+    : '<li style="color:var(--faint)">Nenhum contato registrado ainda.</li>';
   $('drawerContent').innerHTML = `
     <div class="dr-head">
       <button class="x" id="drClose">×</button>
@@ -514,12 +511,16 @@ function openDrawer(id){
       </div>
 
       <div class="block">
-        <h4>Registrar toque</h4>
-        <div class="chans" id="chanBtns">
-          ${Object.entries(CH).map(([k,v])=>`<button data-ch="${k}">${chIcon(k)}<span>${v}</span></button>`).join('')}
+        <h4>Registrar contato</h4>
+        <div class="row2">
+          <div class="field"><label>Nome da pessoa</label><input id="iPessoa" placeholder="com quem você falou"></div>
+          <div class="field"><label>Canal</label>
+            <select id="iCanal"><option value="">—</option><option value="ligacao">Ligação</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="instagram">Instagram</option><option value="linkedin">LinkedIn</option><option value="presencial">Presencial</option></select>
+          </div>
         </div>
-        <div class="field" style="margin-top:10px;margin-bottom:0"><label>Nota do toque (opcional)</label><input id="touchNote" placeholder="ex: falei com RH, retornar dia 20"></div>
-        <ul class="touches" style="margin-top:10px">${touchesHtml}</ul>
+        <div class="field"><label>O que foi dito</label><textarea id="iTexto" placeholder="resumo da conversa, objeções, combinados…"></textarea></div>
+        <button class="btn primary" id="iSave" style="width:100%">Registrar contato</button>
+        <ul class="touches" style="margin-top:12px">${touchesHtml}</ul>
       </div>
 
       <div class="block">
@@ -539,24 +540,18 @@ function openDrawer(id){
       </div>
 
       <div class="block">
-        <h4>Conta</h4>
-        <div class="kv">
-          <div class="k">Corretora atual</div><div class="v">${l.corretor?esc(l.corretor):'—'}</div>
-          <div class="k">CNPJ</div><div class="v mono">${l.cnpj||'—'}</div>
-          <div class="k">Telefone</div><div class="v mono">${l.tel||'—'}</div>
+        <h4>Dados da empresa</h4>
+        <div class="row2">
+          <div class="field"><label>Telefone</label><input id="dTel" value="${esc(l.tel||'')}" placeholder="pesquisar e salvar"></div>
+          <div class="field"><label>Instagram</label><input id="dInsta" value="${esc(l.insta||'')}" placeholder="@empresa"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>E-mail</label><input id="dEmail" value="${esc(l.email||'')}" placeholder="contato@empresa"></div>
+          <div class="field"><label>CNPJ</label><input id="dCnpj" value="${esc(l.cnpj||'')}"></div>
+        </div>
+        <div class="kv" style="margin-top:6px">
+          <div class="k">Corretora atual</div><div class="v">${l.corretor?esc(l.corretor):'sem corretora'}</div>
           <div class="k">Origem</div><div class="v">${origemLabel(l.origem)}</div>
-        </div>
-      </div>
-
-      <div class="block">
-        <h4>Contato (pessoa)</h4>
-        <div class="row2">
-          <div class="field"><label>Nome</label><input id="cNome" value="${esc(l.contato.nome||'')}"></div>
-          <div class="field"><label>Cargo</label><input id="cCargo" value="${esc(l.contato.cargo||'')}"></div>
-        </div>
-        <div class="row2">
-          <div class="field" style="margin-bottom:0"><label>E-mail</label><input id="cEmail" value="${esc(l.contato.email||'')}"></div>
-          <div class="field" style="margin-bottom:0"><label>Instagram</label><input id="cInsta" value="${esc(l.contato.insta||'')}"></div>
         </div>
       </div>
 
@@ -571,15 +566,19 @@ function openDrawer(id){
   document.querySelectorAll('#stageBtns button').forEach(b=>b.onclick=()=>{
     l.stage=b.dataset.s; save(); openDrawer(id); renderListsOnly(); toast('Etapa: '+stageLabel(l.stage));
   });
-  document.querySelectorAll('#chanBtns button').forEach(b=>b.onclick=()=>{
-    logTouch(id,b.dataset.ch,$('touchNote').value.trim()); openDrawer(id); renderListsOnly(); toast(CH[b.dataset.ch]+' registrado');
-  });
+  $('iSave').onclick=()=>{
+    const pessoa=$('iPessoa').value.trim(), ch=$('iCanal').value, texto=$('iTexto').value.trim();
+    if(!pessoa && !texto){ toast('Preencha o nome ou o que foi dito'); return; }
+    l.touches.push({pessoa, ch, note:texto, ts:Date.now()});
+    if(l.stage==='novo') l.stage='contato';
+    save(); openDrawer(id); renderListsOnly(); toast('Contato registrado');
+  };
   $('nextDate').onchange=e=>{l.nextAction=e.target.value;save();};
   $('nextNote').onchange=e=>{l.nextNote=e.target.value;save();};
-  $('cNome').onchange=e=>{l.contato.nome=e.target.value;save();};
-  $('cCargo').onchange=e=>{l.contato.cargo=e.target.value;save();};
-  $('cEmail').onchange=e=>{l.contato.email=e.target.value;save();};
-  $('cInsta').onchange=e=>{l.contato.insta=e.target.value;save();};
+  $('dTel').onchange=e=>{l.tel=e.target.value.trim();save();};
+  $('dInsta').onchange=e=>{l.insta=e.target.value.trim();save();};
+  $('dEmail').onchange=e=>{l.email=e.target.value.trim();save();};
+  $('dCnpj').onchange=e=>{l.cnpj=e.target.value.trim();save();};
   $('notes').onchange=e=>{l.notes=e.target.value;save();};
   document.querySelectorAll('.copybtn').forEach(b=>b.onclick=()=>{
     const txt=$(b.dataset.copy).innerText; navigator.clipboard?.writeText(txt); toast('Copiado');
@@ -588,13 +587,6 @@ function openDrawer(id){
 }
 function closeDrawer(){ openId=null; $('scrim').classList.remove('open'); $('drawer').classList.remove('open'); }
 $('scrim').onclick=closeDrawer;
-
-function logTouch(id,ch,note=''){
-  const l=state.leads.find(x=>x.id===id); if(!l)return;
-  l.touches.push({ch, ts:Date.now(), note});
-  if(l.stage==='novo') l.stage='contato';
-  save(); renderListsOnly();
-}
 
 /* ---------- message generators ---------- */
 function genWhats(l){
