@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiz CRM — Ana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7F2; --panel:#FFFFFF; --ink:#2B2A28; --ink2:#6B6660; --muted:#9A948C; --faint:#C7C1B8;
+    --border:#EDE7DD; --border-2:#E0D8CB; --hover:#FBF8F3;
+    --wiz:#F7941D; --wiz-ink:#D97C06; --wiz-soft:#FDEBD3;
+    --s1:#5E97D6; --s1b:#E7F0FA; --s2:#9B7AD1; --s2b:#F0EAFA; --s3:#E9A23A; --s3b:#FBF0DC;
+    --s4:#E8703C; --s4b:#FBE7DD; --s5:#42B07C; --s5b:#E2F4EC;
+    --side:#9AA3AD; --sideb:#EEF0F2;
+    --shadow:0 2px 8px rgba(43,42,40,.06); --shadow-md:0 8px 24px rgba(43,42,40,.10); --shadow-lg:0 16px 48px rgba(43,42,40,.20);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3,.nun{font-family:'Nunito',sans-serif}
+  ::selection{background:var(--wiz-soft)}
+  .wrap{max-width:1240px;margin:0 auto;padding:20px 22px 90px}
+
+  /* header */
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .brand{display:flex;align-items:center;gap:13px}
+  .brand img{height:30px;width:auto}
+  .brand .vdiv{width:1px;height:26px;background:var(--border-2)}
+  .brand .ttl{font-family:'Nunito';font-weight:900;font-size:24px;letter-spacing:-.02em}
+  .brand .who{font-size:13px;color:var(--wiz-ink);font-weight:800;background:var(--wiz-soft);padding:3px 12px;border-radius:30px;font-family:'Nunito'}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .search{position:relative}
+  .search input{border:1px solid var(--border-2);background:var(--panel);border-radius:30px;padding:10px 14px 10px 38px;font-size:14px;width:240px;color:var(--ink);outline:none}
+  .search input:focus{border-color:var(--wiz);box-shadow:0 0 0 3px var(--wiz-soft)}
+  .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .btn{border:1px solid var(--border-2);background:var(--panel);color:var(--ink);border-radius:30px;padding:10px 16px;font-size:14px;font-weight:700;font-family:'Nunito';display:inline-flex;align-items:center;gap:6px;transition:.12s}
+  .btn:hover{background:var(--hover)}
+  .btn.primary{background:var(--wiz);border-color:var(--wiz);color:#fff;box-shadow:0 4px 12px rgba(247,148,29,.3)}
+  .btn.primary:hover{background:var(--wiz-ink);border-color:var(--wiz-ink)}
+  .btn.big{padding:12px 22px;font-size:15px}
+
+  /* tabs */
+  .tabs{display:inline-flex;background:#F0EBE2;border-radius:30px;padding:4px;margin-bottom:18px}
+  .tabs button{border:0;background:transparent;padding:9px 20px;border-radius:30px;font-size:14.5px;font-weight:800;font-family:'Nunito';color:var(--ink2)}
+  .tabs button.on{background:var(--panel);color:var(--wiz-ink);box-shadow:var(--shadow)}
+
+  /* FUNNEL hero (signature) */
+  .funnel-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:18px 20px 20px;box-shadow:var(--shadow);margin-bottom:18px}
+  .funnel-card .fhint{font-size:13px;color:var(--ink2);margin:0 0 14px;font-weight:500}
+  .funnel-card .fhint b{color:var(--ink);font-weight:700}
+  .funnel{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px}
+  .fstep{flex:1;min-width:130px;position:relative;background:transparent;border:0;text-align:left;padding:0 6px;cursor:pointer}
+  .fstep .inner{background:var(--hover);border:2px solid transparent;border-radius:14px;padding:12px 13px;transition:.14s;height:100%}
+  .fstep:hover .inner{background:#fff;box-shadow:var(--shadow)}
+  .fstep.active .inner{background:#fff;box-shadow:var(--shadow-md)}
+  .fstep .nrow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .fstep .num{width:24px;height:24px;border-radius:50%;color:#fff;font-family:'Nunito';font-weight:800;font-size:13px;display:grid;place-items:center;flex-shrink:0}
+  .fstep .lab{font-family:'Nunito';font-weight:800;font-size:13.5px;line-height:1.1}
+  .fstep .big{font-family:'Nunito';font-weight:900;font-size:26px;line-height:1;letter-spacing:-.02em}
+  .fstep .sub{font-size:11px;color:var(--muted);margin-top:3px;font-weight:600}
+  .fstep .arrow{position:absolute;right:-7px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:16px;z-index:1}
+  .fstep:last-child .arrow{display:none}
+  .fstep.active[data-c] .inner{border-color:var(--ac)}
+  .sidechips{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .sidechip{border:1px solid var(--border-2);background:var(--panel);border-radius:30px;padding:6px 14px;font-size:12.5px;font-weight:700;font-family:'Nunito';color:var(--ink2);display:inline-flex;align-items:center;gap:7px}
+  .sidechip:hover{background:var(--hover)}
+  .sidechip.active{border-color:var(--ink);color:var(--ink)}
+  .sidechip .dot{width:9px;height:9px;border-radius:50%}
+  .sidechip .ct{color:var(--muted)}
+  .allchip{margin-left:auto}
+
+  /* cards grid */
+  .gridhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+  .gridhead h2{font-size:18px;font-weight:800;margin:0}
+  .gridhead .cnt{color:var(--muted);font-weight:600;font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);cursor:pointer;transition:.14s;border-top:4px solid var(--ac,#ccc)}
+  .card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+  .card .ctop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px}
+  .card .cname{font-family:'Nunito';font-weight:800;font-size:16.5px;line-height:1.2}
+  .stchip{font-size:11px;font-weight:800;font-family:'Nunito';color:#fff;border-radius:30px;padding:3px 10px;white-space:nowrap;flex-shrink:0}
+  .card .cinfo{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:12px}
+  .card .cinfo .lbl{color:var(--muted)}
+  .progress{display:flex;gap:4px;margin-bottom:12px}
+  .progress span{flex:1;height:6px;border-radius:6px;background:var(--border)}
+  .card .cbot{display:flex;align-items:center;justify-content:space-between}
+  .card .vidas{font-family:'Nunito';font-weight:800;font-size:15px}
+  .card .vidas small{color:var(--muted);font-weight:600;font-size:11px}
+  .av{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2)}
+  .av .ball{width:26px;height:26px;border-radius:50%;color:#fff;font-weight:800;font-size:11px;font-family:'Nunito';display:grid;place-items:center;flex-shrink:0}
+  .card-add{border:2px dashed var(--border-2);background:transparent;border-radius:16px;display:grid;place-items:center;min-height:130px;color:var(--ink2);font-weight:800;font-family:'Nunito';font-size:15px;cursor:pointer;transition:.14s}
+  .card-add:hover{border-color:var(--wiz);color:var(--wiz-ink);background:var(--wiz-soft)}
+  .card-add .plus{font-size:26px;display:block;margin-bottom:4px}
+  .empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:50px 20px}
+
+  /* contratos cards */
+  .ctr-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);cursor:pointer;transition:.14s;border-left:5px solid var(--ac,#ccc)}
+  .ctr-card:hover{box-shadow:var(--shadow-md)}
+  .ctr-card .cname{font-family:'Nunito';font-weight:800;font-size:16px;margin-bottom:8px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .ctr-card .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+  .ctr-card .kv .k{color:var(--muted)} .ctr-card .kv .v{text-align:right;font-weight:600}
+
+  /* drawer */
+  .scrim{position:fixed;inset:0;background:rgba(43,42,40,.4);opacity:0;pointer-events:none;transition:.18s;z-index:40}
+  .scrim.open{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:480px;max-width:96vw;background:var(--bg);box-shadow:var(--shadow-lg);transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);z-index:41;display:flex;flex-direction:column}
+  .drawer.open{transform:none}
+  #drawerContent{display:flex;flex-direction:column;height:100%;min-height:0;width:100%}
+  .dr-head{padding:20px 22px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:relative}
+  .dr-head .x{position:absolute;top:16px;right:18px;border:0;background:transparent;font-size:24px;color:var(--ink2);line-height:1}
+  .dr-head h2{font-family:'Nunito';font-weight:900;font-size:21px;margin:0 34px 0 0;letter-spacing:-.01em}
+  .dr-body{padding:18px 22px 60px;overflow-y:auto;flex:1;min-height:0}
+  .block{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px}
+  .block h4{margin:0 0 4px;font-size:15px;font-weight:800;font-family:'Nunito'}
+  .block .help{font-size:12px;color:var(--muted);margin:0 0 13px}
+  /* stepper in drawer */
+  .stepper{display:flex;align-items:center;margin:6px 0 14px}
+  .stepper .st{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;cursor:pointer}
+  .stepper .st .c{width:30px;height:30px;border-radius:50%;border:2px solid var(--border-2);background:#fff;display:grid;place-items:center;font-family:'Nunito';font-weight:800;font-size:13px;color:var(--muted);z-index:1;transition:.14s}
+  .stepper .st .t{font-size:10.5px;font-weight:700;color:var(--muted);text-align:center;line-height:1.15}
+  .stepper .st.done .c,.stepper .st.cur .c{color:#fff}
+  .stepper .st.cur .c{box-shadow:0 0 0 4px var(--wiz-soft)}
+  .stepper .st::before{content:"";position:absolute;top:15px;left:-50%;width:100%;height:2px;background:var(--border-2);z-index:0}
+  .stepper .st:first-child::before{display:none}
+  .stepper .st.done::before,.stepper .st.cur::before{background:var(--wiz)}
+  .stepbtns{display:flex;gap:8px}
+  .stepbtns .btn{flex:1;justify-content:center}
+  .sidebtns{display:flex;gap:8px;margin-top:8px}
+  .sidebtns button{flex:1;border:1px solid var(--border-2);background:#fff;border-radius:10px;padding:8px;font-size:12.5px;font-weight:700;font-family:'Nunito';color:var(--ink2)}
+  .sidebtns button:hover{background:var(--hover)}
+  .sidebtns button.on{color:#fff;border-color:transparent}
+
+  .field{margin-bottom:12px}.field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:12px;color:var(--ink2);font-weight:700;margin-bottom:5px}
+  .field input,.field textarea,.field select{width:100%;border:1px solid var(--border-2);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--ink);outline:none;background:#fff}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--wiz);box-shadow:0 0 0 3px var(--wiz-soft)}
+  .field textarea{resize:vertical;min-height:70px;line-height:1.5}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .bubble-list{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+  .bubble{background:var(--wiz-soft);border-radius:14px 14px 14px 5px;padding:11px 13px;font-size:13.5px;line-height:1.55}
+  .bubble .meta{font-size:11px;color:var(--ink2);margin-top:7px;display:flex;justify-content:space-between;opacity:.8}
+  .bubble .del{border:0;background:transparent;color:var(--ink2);cursor:pointer;font-size:11px;opacity:.7}
+  .bubble .del:hover{color:#D14;opacity:1}
+
+  /* modal */
+  .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(43,42,40,.42);z-index:50;padding:20px}
+  .modal.open{display:grid}
+  .modal .box{background:var(--panel);border-radius:18px;width:520px;max-width:100%;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);padding:24px}
+  .modal h3{font-family:'Nunito';font-weight:900;margin:0 0 6px;font-size:20px}
+  .modal .msub{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .modal .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:30px;font-size:14px;font-weight:700;font-family:'Nunito';opacity:0;transition:.2s;z-index:60;box-shadow:var(--shadow-lg)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:560px){.search input{width:150px}.fstep{min-width:120px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <img src="data:image/png;base64,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" alt="Wiz">
+      <span class="vdiv"></span>
+      <span class="ttl">CRM</span>
+      <span class="who">Ana</span>
+    </div>
+    <div class="toolbar">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="search" placeholder="Buscar cliente, operadora…">
+      </div>
+      <button class="btn" id="btnImport">Importar</button>
+      <button class="btn" id="btnExport">Exportar</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="on" id="tabFunil" data-v="funil">Funil de clientes</button>
+    <button id="tabContratos" data-v="contratos">Contratos</button>
+  </div>
+
+  <div id="viewFunil">
+    <div class="funnel-card">
+      <p class="fhint">Cada cliente caminha pelas <b>5 etapas</b> abaixo. Clique numa etapa para ver só os clientes dela, e clique num cliente pra abrir e <b>avançar</b> no funil.</p>
+      <div class="funnel" id="funnel"></div>
+      <div class="sidechips" id="sidechips"></div>
+    </div>
+    <div class="gridhead">
+      <h2 id="gridTitle">Todos os clientes</h2>
+      <span class="cnt" id="gridCnt"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div id="viewContratos" style="display:none">
+    <div class="gridhead">
+      <h2>Contratos fechados</h2>
+      <button class="btn primary" id="addCtrTop">+ Novo contrato</button>
+    </div>
+    <div class="grid" id="ctrGrid"></div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer"><div id="drawerContent"></div></aside>
+
+<!-- modal cliente -->
+<div class="modal" id="modalDeal">
+  <div class="box">
+    <h3>Novo cliente</h3>
+    <p class="msub">Adicione um grupo/empresa no funil. Só o nome é obrigatório — o resto você completa depois.</p>
+    <div class="field"><label>Nome do cliente / grupo *</label><input id="d_grupo" placeholder="ex: Citrosuco"></div>
+    <div class="row2">
+      <div class="field"><label>Etapa</label><select id="d_etapa"></select></div>
+      <div class="field"><label>Vidas</label><input id="d_vidas" type="number" min="0" placeholder="0"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Operadora atual</label><input id="d_operadora"></div>
+      <div class="field"><label>Corretora atual</label><input id="d_corretora"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Parceiro de origem</label><input id="d_origem"></div>
+      <div class="field"><label>Consultora</label><input id="d_consultora"></div>
+    </div>
+    <div class="field"><label>Quem está à frente</label><input id="d_frente"></div>
+    <div class="actions"><button class="btn" id="d_cancel">Cancelar</button><button class="btn primary" id="d_save">Adicionar ao funil</button></div>
+  </div>
+</div>
+
+<!-- modal contrato -->
+<div class="modal" id="modalCtr">
+  <div class="box">
+    <h3 id="ctrTitle">Novo contrato</h3>
+    <p class="msub">Registre um contrato fechado para acompanhar vigência e renovação.</p>
+    <div class="field"><label>Cliente / grupo *</label><input id="c_cliente"></div>
+    <div class="row2">
+      <div class="field"><label>Operadora</label><input id="c_operadora"></div>
+      <div class="field"><label>Modalidade</label><select id="c_modal"><option>Saúde</option><option>Odonto</option><option>Vida</option><option>Saúde + Odonto</option><option>Outro</option></select></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Vidas</label><input id="c_vidas" type="number" min="0"></div>
+      <div class="field"><label>Status</label><select id="c_status"><option value="implantacao">Em implantação</option><option value="ativo">Ativo</option><option value="renovacao">Em renovação</option><option value="cancelado">Cancelado</option></select></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Início de vigência</label><input id="c_inicio" type="date"></div>
+      <div class="field"><label>Renovação</label><input id="c_venc" type="date"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Comissão / Fee</label><input id="c_comissao" placeholder="ex: 3% / R$10k mês"></div>
+      <div class="field"><label>Consultora</label><input id="c_consultora"></div>
+    </div>
+    <div class="actions"><button class="btn" id="c_del" style="margin-right:auto;color:#D14;border-color:#F0C9CC;display:none">Excluir</button><button class="btn" id="c_cancel">Cancelar</button><button class="btn primary" id="c_save">Salvar contrato</button></div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept="application/json" style="display:none">
+<div class="toast" id="toast"></div>
+
+<script>
+const SEED_DEALS = [{"id": 1, "grupo": "Aeskin", "origem": "Alberto", "corretora": "", "operadora": "Amil", "vidas": 700, "obs": "Reunião Ana com Dir RH 08/05. Eles possuem 3 apólices PME que acabaram de Unificar com Amil. Apresentamos solucção de NR1 que está caminhando para fechar.", "etapa": "oportunidade", "frente": "Ana Giovannini", "consultora": "Tatiana", "updates": []}, {"id": 2, "grupo": "DPSP", "origem": "Alberto", "corretora": "", "operadora": "", "vidas": 0, "obs": "Aguardando 1a angenda Alberto", "etapa": "novo", "frente": "Gustavo Ramos", "consultora": "", "updates": []}, {"id": 3, "grupo": "Citrosuco", "origem": "Ana", "corretora": "Aon", "operadora": "Sul América, Unimed e Bradesco", "vidas": 22000, "obs": "Conseguimos entrar no BID as 45s. Apresentação Proposta ate 16/06. Comissão atual AON 3%", "etapa": "proposta", "frente": "Ana Giovannini", "consultora": "Tatiana", "updates": []}, {"id": 4, "grupo": "GW - General Waters", "origem": "Ana", "corretora": "Lebrão Corretora", "operadora": "Porto", "vidas": 700, "obs": "Visita Presencial. Não irão trocar correotor esse ano. Agenda para levar Valee e propostaa de Totem - Via Fee", "etapa": "oportunidade", "frente": "Ana Giovannini", "consultora": "Jéssica", "updates": []}, {"id": 5, "grupo": "LOCALIZA", "origem": "Ana", "corretora": "Galagher", "operadora": "CNU e Bradesco", "vidas": 47000, "obs": "Em RFP / Reunião 02/05 - 45.000 vidas CNU e 3.000 Bradesco. Agenda para conhecer SERASA se formos para final. Comissão de 30k/mês de Odonto + Comissão do VG de 10k. Fee atual (1,25)", "etapa": "proposta", "frente": "Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 6, "grupo": "MSC", "origem": "Ana", "corretora": "Lockton", "operadora": "Porto", "vidas": 6000, "obs": "Reunião agendada para 02/05", "etapa": "oportunidade", "frente": "Ana Giovannini", "consultora": "", "updates": []}, {"id": 7, "grupo": "Termomecanica", "origem": "Denner", "corretora": "MDS", "operadora": "Happy Vida", "vidas": 5800, "obs": "Agenda presencial - Data base Abril - Iremos apresentar proposta de serviçoo vislumbrando nomeaçao futura - Serviços + APS", "etapa": "proposta", "frente": "Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 8, "grupo": "Wheaton Brasil Vidros", "origem": "Denner", "corretora": "", "operadora": "", "vidas": 0, "obs": "Negociaçã Quintão e Denner", "etapa": "oportunidade", "frente": "Gustavo Quintão", "consultora": "", "updates": []}, {"id": 9, "grupo": "PetroReconcavo", "origem": "Elaine", "corretora": "Alper", "operadora": "Bradesco", "vidas": 3000, "obs": "A reunião realizada com Ana e Vinicius foi extremamente positiva. A oportunidade surgiu por indicação de Elaine, conselheira de RH. O momento agora é de realizar um acompanhamento próximo, aprofundando as discussões e identificando novas oportunidades relacionadas à gestão de saúde, benefícios e eficiência assistencial. Faremos proposta de consultoria pontual I. Score Wiz II. Resenho e estudo de Passivo", "etapa": "proposta", "frente": "Jose Coelho e Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 10, "grupo": "Tahto", "origem": "Elaine", "corretora": "Não possui", "operadora": "Hapvida e Amil", "vidas": 100000, "obs": "Reunião 15/06com Luis CEO. Enviar email solicitando informações iniciais para proposta de serviço.", "etapa": "oportunidade", "frente": "Gustavo Ramos e Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 11, "grupo": "Aeris", "origem": "Fabio Portela", "corretora": "MDS", "operadora": "GNDI", "vidas": 6000, "obs": "Reunião 20/05.Iniciando coleta das informações para realizar estudo", "etapa": "proposta", "frente": "Ana Giovannini", "consultora": "Tatiana", "updates": []}, {"id": 12, "grupo": "TRF3", "origem": "Gota de Orvalho", "corretora": "", "operadora": "", "vidas": 0, "obs": "Na próxima quarta-feira acontecerá uma reunião com a participação de Zé, Quintão e duas enfermeiras. A proposta, construída pela equipe do Zé, prevê uma implementação faseada envolvendo totens de atendimento, mini check-ups, BI de saúde, gestão populacional e outras iniciativas de promoção à saúde. Quintão enviará uma proposta inspirada no modelo adotado pela Unimed Seguros. O objetivo principal é obter o aval da Roseli para avançar com a nomeação da Unimed Seguros. A oportunidade foi indicada pela Corretora Gota de Orvalho.", "etapa": "proposta", "frente": "Jose Coelho e Gustavo,s", "consultora": "", "updates": []}, {"id": 13, "grupo": "Fogo de Chão", "origem": "Jésscia", "corretora": "NDI", "operadora": "", "vidas": 700, "obs": "Jessica mandou msg RH - Alexandre Sagin - CFO - Paulo César Antunes", "etapa": "novo", "frente": "", "consultora": "", "updates": []}, {"id": 14, "grupo": "Geonoma", "origem": "Jésscia", "corretora": "Porto", "operadora": "", "vidas": 48, "obs": "Aguardando finalização da trasnferencia corretagem junto à Porto para iniciar Onboarding", "etapa": "proposta", "frente": "Ana Giovannini", "consultora": "Jéssica", "updates": []}, {"id": 15, "grupo": "Spick Brasil", "origem": "Jessica", "corretora": "Sul America", "operadora": "", "vidas": 300, "obs": "Jessica marcando agenda", "etapa": "novo", "frente": "", "consultora": "", "updates": []}, {"id": 16, "grupo": "Hotel HBR 66 (W)", "origem": "Jéssica", "corretora": "Amil", "operadora": "", "vidas": 200, "obs": "Jessica marcando agenda", "etapa": "novo", "frente": "", "consultora": "", "updates": []}, {"id": 17, "grupo": "Shopee", "origem": "Jessica e Mel", "corretora": "", "operadora": "", "vidas": 15000, "obs": "Reunião 03/2026 agendada pela Jessica com Mel. Jiang conversou com Singapura que indicou mesma pessoa que Jessica conhece. OPORTUNIDADE MASSIFICADO Jiang e Gustavo", "etapa": "oportunidade", "frente": "Melissa", "consultora": "Aletéia", "updates": []}, {"id": 18, "grupo": "Bank Of China", "origem": "Jiang", "corretora": "Lockton", "operadora": "Porto", "vidas": 700, "obs": "Reunião dia 21/05 - Resistência Rh para seguir", "etapa": "relacionamento", "frente": "Gustavo Ramos", "consultora": "Aletéia", "updates": []}, {"id": 19, "grupo": "CPFL", "origem": "Jiang", "corretora": "", "operadora": "", "vidas": 0, "obs": "Ana realizou Call 10/06 com Leonardo Rossi. Chegamos fora de tempo. Estão finalizando BID de Broker que durou 4 meses. Oportunidade para 2028. Não vai evoluir agora. Tentando agenda para criar relacionamento e possiveis oportunidades para consultoria pontual, PAT", "etapa": "relacionamento", "frente": "Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 20, "grupo": "DL(Xiami & Honnor)", "origem": "Jiang", "corretora": "", "operadora": "Unimed", "vidas": 295, "obs": "Reunião agendada dia 16/06 com Rodrigo Barbosa 1a reunião", "etapa": "oportunidade", "frente": "Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 21, "grupo": "GAC - Montadora", "origem": "Jiang", "corretora": "", "operadora": "", "vidas": 0, "obs": "Reunião dia 14/05 desmarcada. Aguardando Jiang agendar nova data", "etapa": "novo", "frente": "", "consultora": "Aletéia", "updates": []}, {"id": 22, "grupo": "Huawei", "origem": "Jiang", "corretora": "Galagher", "operadora": "Bradesco", "vidas": 3000, "obs": "Reuniao 10/06.Oportunidade troca Corretor Janeito/2027 . Proximo passo: 1. Agenda sobre PAT com Valee (entra agora e dps assuimos custo qd nos nomear); 2. Agenda de bench com Dr José sobre NR01 e Consultoria pontual (POC?). Dores TEA 8 casos severos. 3 niveis de Plano atualmente. Sinistralidade 78% e Predição. Conta na celula da Barbara n a Bradesco. Vence agosto em fase final de negociação. Sula ofereceu -8% para entrar. Bradesco pediu Reajuste. Posseum 200 funcionarios chineses (concierge em Mandarim).", "etapa": "oportunidade", "frente": "Gustavo Ramos e Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 23, "grupo": "Infinix & Tecno", "origem": "Jiang", "corretora": "", "operadora": "", "vidas": 0, "obs": "Aguardando 1a angenda Jiang", "etapa": "novo", "frente": "", "consultora": "Aletéia", "updates": []}, {"id": 24, "grupo": "Jovi Celular", "origem": "Jiang", "corretora": "Alper", "operadora": "Sul América", "vidas": 180, "obs": "Reunião dia 12/05 Ana Giovannini e Jiang. Saúde fora do prazo. Estamos estudando entrar sem comissão para tirar Alper", "etapa": "oportunidade", "frente": "Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 25, "grupo": "Jovi Celular", "origem": "Jiang", "corretora": "Alper", "operadora": "Sul América ODONTO", "vidas": 129, "obs": "Reunião dia 12/05 Ana Giovannini e Jiang. Fechamos o Odonto deles na Sula.", "etapa": "fechado", "frente": "Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 26, "grupo": "Linuo Brasil", "origem": "Jiang", "corretora": "", "operadora": "", "vidas": 0, "obs": "Aguardando 1a angenda Jiang", "etapa": "novo", "frente": "", "consultora": "Aletéia", "updates": []}, {"id": 27, "grupo": "Mindray", "origem": "Jiang", "corretora": "", "operadora": "", "vidas": 0, "obs": "Ana fez Call 10/06 - Andreia Diretora RH indicação Luccas Xu CEO - Fwp final do ano. Andréia muito resistente", "etapa": "relacionamento", "frente": "", "consultora": "Aletéia", "updates": []}, {"id": 28, "grupo": "Shein", "origem": "Jiang", "corretora": "", "operadora": "", "vidas": 0, "obs": "Sem informações ainda", "etapa": "novo", "frente": "", "consultora": "Aletéia", "updates": []}, {"id": 29, "grupo": "We Coffe", "origem": "Jiang", "corretora": "", "operadora": "Amil", "vidas": 250, "obs": "Ana Reunião 08/07 com Saulo RH - Solicitando dados para cotar", "etapa": "oportunidade", "frente": "Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 30, "grupo": "WSK Automotive", "origem": "Jiang", "corretora": "", "operadora": "", "vidas": 0, "obs": "Aguardando 1a angenda Jiang", "etapa": "novo", "frente": "", "consultora": "Aletéia", "updates": []}, {"id": 31, "grupo": "Cacau Show e Play One", "origem": "Luccas Picirillo e Ana", "corretora": "", "operadora": "", "vidas": 3000, "obs": "Contato com Jemina a pedido do Daniel Costa - Play One conta da Porto", "etapa": "novo", "frente": "Ana Giovannini", "consultora": "", "updates": []}, {"id": 32, "grupo": "APAE São Paulo", "origem": "Majo", "corretora": "Xipp", "operadora": "Amil", "vidas": 500, "obs": "Realizada visita Presencial Ana e Quintao. Recebemos dados para estudo no dia 10/06. Dados Tabulados para estudo com 3 pilares: Resseguro para evitar Picos e reaujtes abusivos, cotação cenário atual e estudo de redesenho (contributariedade e passivo dos Inativos)", "etapa": "proposta", "frente": "Quintao e Ana Giovannini", "consultora": "Jéssica", "updates": []}, {"id": 33, "grupo": "BRQ", "origem": "Majo", "corretora": "", "operadora": "", "vidas": 0, "obs": "A reunião com a equipe foi muito bem recebida e, segundo a própria Majo, a cliente Verônica, do RH, demonstrou excelente receptividade às propostas apresentadas. Apesar de o contrato ter sido renovado em julho, é fundamental manter um trabalho contínuo de relacionamento ao longo do segundo semestre para garantir posicionamento favorável no próximo ciclo de renovação.", "etapa": "relacionamento", "frente": "Gustavo Ramos", "consultora": "", "updates": []}, {"id": 34, "grupo": "Cruzeiro", "origem": "Majo", "corretora": "", "operadora": "", "vidas": 9000, "obs": "Reunião realizada com Compras que loteou mercado para cotar. Hapivda - Vencimeto junho - renovou por 12 meses. Quintão em contato com Negrão. Opção esvaziar parte da apolice Hapvida. Necessário definir estratégia", "etapa": "proposta", "frente": "Ana Giovannini e Quintão", "consultora": "Aletéia", "updates": []}, {"id": 35, "grupo": "Grupo Ruas", "origem": "Marcelo", "corretora": "", "operadora": "", "vidas": 40000, "obs": "Aguardando Marcelo. Ainda sem evollução", "etapa": "novo", "frente": "Gustavo Ramos", "consultora": "", "updates": []}, {"id": 36, "grupo": "CLDR", "origem": "MaxWel Navarro", "corretora": "", "operadora": "", "vidas": 0, "obs": "Dia 19/05 - Treinamento para liderança deles dia Grupo CLDR ligado ao Quintão. São consultores de Direito Tributario, finanças, gestão e tem muitas clientes empresas. Pedi oportunidade para cotar o saúde da CLDR. Aguardando Maxwell", "etapa": "oportunidade", "frente": "Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 37, "grupo": "Espinhaço e GRRJ", "origem": "Maxwell Navarro", "corretora": "", "operadora": "", "vidas": 170, "obs": "Recebemos carta de Autorização para cotar. Coletando dados", "etapa": "oportunidade", "frente": "Ana Giovannini", "consultora": "Aletéia", "updates": []}, {"id": 38, "grupo": "ARTESANAL INVESTIMENTOS", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 200, "obs": "EM NEGOCIAÇÃO", "etapa": "negociacao", "frente": "Mel", "consultora": "", "updates": []}, {"id": 39, "grupo": "Casa Bahia", "origem": "Mel", "corretora": "", "operadora": "Hapvida,Bradesco, Fesp, Unimed BH", "vidas": 33000, "obs": "Proposta final enviada via Ariba 11/06", "etapa": "proposta", "frente": "Mel", "consultora": "", "updates": []}, {"id": 40, "grupo": "CINPAL", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 5000, "obs": "AGUARDANDO ASSINATURA DO CONTRATO E AGENDA DE REUNIÃO", "etapa": "novo", "frente": "Mel", "consultora": "", "updates": []}, {"id": 41, "grupo": "COLOPLAST", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 800, "obs": "BID PAUSADO. INÍCIO 2027", "etapa": "novo", "frente": "Mel", "consultora": "", "updates": []}, {"id": 42, "grupo": "ELETROBRAS", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 0, "obs": "PERDIDO", "etapa": "novo", "frente": "Mel", "consultora": "", "updates": []}, {"id": 43, "grupo": "EMBRACOM", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 0, "obs": "AGUARDANDO RETOMADA DO BID", "etapa": "novo", "frente": "Mel", "consultora": "", "updates": []}, {"id": 44, "grupo": "EVOY", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 101, "obs": "FECHADO", "etapa": "fechado", "frente": "Mel", "consultora": "", "updates": []}, {"id": 45, "grupo": "GENIAL INVESTIMENTO", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 0, "obs": "AGUARDANDO DATA SEGUNDA REUNIÃO", "etapa": "oportunidade", "frente": "Mel", "consultora": "", "updates": []}, {"id": 46, "grupo": "GRUPO ALPHAVILLE", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 1000, "obs": "REUNIÃO AGENDADA 16/06", "etapa": "frio", "frente": "Mel", "consultora": "", "updates": []}, {"id": 47, "grupo": "GRUPO MATEUS", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 25000, "obs": "PERDIDO", "etapa": "novo", "frente": "Mel", "consultora": "", "updates": []}, {"id": 48, "grupo": "LATAM", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 28000, "obs": "EM NEGOCIAÇÃO", "etapa": "negociacao", "frente": "Mel", "consultora": "", "updates": []}, {"id": 49, "grupo": "LÍDER TAXI AÉREO", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 90, "obs": "PERDIDO", "etapa": "novo", "frente": "Mel", "consultora": "", "updates": []}, {"id": 50, "grupo": "LONG PING", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 3000, "obs": "EM NEGOCIAÇÃO", "etapa": "negociacao", "frente": "Mel", "consultora": "", "updates": []}, {"id": 51, "grupo": "MAGALU", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 30000, "obs": "EM NEGOCIAÇÃO", "etapa": "negociacao", "frente": "Mel", "consultora": "", "updates": []}, {"id": 52, "grupo": "MAUSER DO BRASIL", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 1000, "obs": "EM COTAÇÃO", "etapa": "proposta", "frente": "Mel", "consultora": "", "updates": []}, {"id": 53, "grupo": "NATURA", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 0, "obs": "AGUARDANDO SEGUNDA REUNIÃO", "etapa": "oportunidade", "frente": "Mel", "consultora": "", "updates": []}, {"id": 54, "grupo": "NISSAN DO BRASIL", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 0, "obs": "AGUARDANDO BID SEGUNDO SEMESTRE", "etapa": "oportunidade", "frente": "Mel", "consultora": "", "updates": []}, {"id": 55, "grupo": "PLAENGE ENGENHARIA", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 3000, "obs": "AGUARDANDO INFORMAÇÃO PARA COTAÇÃO", "etapa": "oportunidade", "frente": "Mel", "consultora": "", "updates": []}, {"id": 56, "grupo": "REFRESCOS BANDEIRANTES (COCA COLA GOIÂNIA)", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 7000, "obs": "AGUARDANDO REUNIÃO EM JULHO EM SP", "etapa": "oportunidade", "frente": "Mel", "consultora": "", "updates": []}, {"id": 57, "grupo": "TRW", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 1000, "obs": "EM NEGOCIAÇÃO", "etapa": "negociacao", "frente": "Mel", "consultora": "", "updates": []}, {"id": 58, "grupo": "VERISURE", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 0, "obs": "OPORTUNIDADE PARA FINAL DO ANO", "etapa": "novo", "frente": "Mel", "consultora": "", "updates": []}, {"id": 59, "grupo": "WEG", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 0, "obs": "A reunião realizada na última quinta-feira foi considerada excelente. Rodrigo, da Unimed Seguros, teve uma participação muito positiva. Durante a discussão, Pamela, do RH, reforçou que a Leve Saúde não poderia ser retirada da operação. A Unimed FESC havia condicionado a migração para a Unimed Seguros à transferência integral das vidas atualmente vinculadas à Leve Saúde, sob o argumento de risco de antisseleção. No entanto, Quintão apresentou projeções demonstrando que a migração poderia ocorrer de forma gradual. Rodrigo, da Unimed Seguros, apoiou esse posicionamento e confirmou a possibilidade de manter a Leve Saúde durante a transição. Neste momento, a decisão está com o cliente, sendo fundamental realizar um follow-up próximo, especialmente por meio da Mel, para acompanhar a evolução do processo.", "etapa": "proposta", "frente": "Mel e Quintão", "consultora": "", "updates": []}, {"id": 60, "grupo": "WEG", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 30000, "obs": "EM NEGOCIAÇÃO", "etapa": "negociacao", "frente": "Mel", "consultora": "", "updates": []}, {"id": 61, "grupo": "YDUQS", "origem": "Mel", "corretora": "", "operadora": "", "vidas": 30000, "obs": "EM COTAÇÃO", "etapa": "proposta", "frente": "Mel", "consultora": "", "updates": []}, {"id": 62, "grupo": "Cencosud", "origem": "Tatiana", "corretora": "", "operadora": "", "vidas": 10000, "obs": "Gustavo pediu Tati quer avcionoou compraas e RH - Tetnando participar do BID que chegamos atrasados", "etapa": "novo", "frente": "Ana Giovannini", "consultora": "Tatiana", "updates": []}, {"id": 63, "grupo": "Dalba Engenharia", "origem": "Tatiana", "corretora": "", "operadora": "", "vidas": 1000, "obs": "Aguardando dados para Cotar", "etapa": "oportunidade", "frente": "Ana Giovannini", "consultora": "Tatiana", "updates": []}, {"id": 64, "grupo": "Grupo SC", "origem": "Tatiana", "corretora": "", "operadora": "", "vidas": 0, "obs": "Tati tentando contato com Camila da RH", "etapa": "novo", "frente": "Ana Giovannini", "consultora": "Tatiana", "updates": []}, {"id": 65, "grupo": "Martininas Supermercados", "origem": "Thiago Pereira", "corretora": "", "operadora": "Sem Plano", "vidas": 22000, "obs": "Grupo não oferece plano de saúde. Há interesse em discutir VT e VR, além de uma reunião específica sobre crédito consignado com a Prestaminas. A estratégia é explorar um balcão de afinidades, oferecendo cartão de desconto em saúde, seguro de vida com cobertura para doenças graves e soluções de proteção financeira. O orçamento estimado é de R$ 100 por colaborador ao mês, o que pode viabilizar uma solução robusta de benefícios e saúde para uma população atualmente sem cobertura. Proximo passo??", "etapa": "oportunidade", "frente": "Gustavo Ramos", "consultora": "", "updates": []}, {"id": 66, "grupo": "Lacerda", "origem": "Thiago Pereira", "corretora": "", "operadora": "", "vidas": 227, "obs": "Ana fez contato com Andressa e conectou Natalia com Jessica para levantamento das infiormações.", "etapa": "oportunidade", "frente": "Ana Giovannini e Quintão", "consultora": "Jéssica", "updates": []}, {"id": 67, "grupo": "Lacerda Advogados", "origem": "Thiago Pereira", "corretora": "Não Possui", "operadora": "Sem Plano", "vidas": 400, "obs": "Atualmente sem plano de saúde. É necessário realizar as cotações com máxima urgência para evitar um período sem cobertura assistencial. A velocidade de resposta será determinante para o sucesso da oportunidade. Ana fez contato com Andressa e conectou Natalia com Jessica para levantamento das infiormações.", "etapa": "proposta", "frente": "Gustavo Ramos", "consultora": "Jéssica", "updates": []}, {"id": 68, "grupo": "Minas Tênis Clube", "origem": "Thiago Pereira", "corretora": "Não Possui", "operadora": "Unimed BH", "vidas": 6000, "obs": "Sinistralidade de aproximadamente 72% e benefício de saúde operado pela Unimed BH. Atualmente não possui corretor, conta com equipe médica própria e já realiza comitês de saúde. Proximo passo??", "etapa": "oportunidade", "frente": "Gustavo Ramos", "consultora": "", "updates": []}, {"id": 69, "grupo": "Solides", "origem": "Thiago Pereira", "corretora": "", "operadora": "", "vidas": 0, "obs": "Reinião dia 17/06 para entendimento das necessidades e esclarecimento de dúvidas. Participarão também os parceiros Valee, Bencare e Horizontes Asset.", "etapa": "oportunidade", "frente": "Gustavo Ramos", "consultora": "", "updates": []}, {"id": 70, "grupo": "Carrefour", "origem": "Helton", "corretora": "", "operadora": "", "vidas": 0, "obs": "Helton e Gustavo Ramos", "etapa": "novo", "frente": "Gustavo Ramos", "consultora": "", "updates": []}, {"id": 71, "grupo": "Theraskin", "origem": "Denner", "corretora": "", "operadora": "", "vidas": 1200, "obs": "Reunião - Abril/2027", "etapa": "negociacao", "frente": "Ana Giovannini", "consultora": "", "updates": []}, {"id": 72, "grupo": "Carrefour", "origem": "Helton", "corretora": "Marsh", "operadora": "NDI", "vidas": 100000, "obs": "Projeto harmonização Carrefour Atacadao. Ex Diretor Carrefou contato Helton. Gerente de Rh é dele. 20/05", "etapa": "novo", "frente": "Luccas", "consultora": "", "updates": []}, {"id": 73, "grupo": "Lessafre", "origem": "Helton", "corretora": "Varias", "operadora": "Bradesco", "vidas": 0, "obs": "Em BID", "etapa": "oportunidade", "frente": "Luccas", "consultora": "", "updates": []}, {"id": 74, "grupo": "Lear", "origem": "Helton", "corretora": "", "operadora": "", "vidas": 0, "obs": "Medica Gerente Saude - amiga Helton vai tentar no incluir no BID", "etapa": "oportunidade", "frente": "", "consultora": "", "updates": []}, {"id": 75, "grupo": "Icomon", "origem": "Helton", "corretora": "", "operadora": "", "vidas": 0, "obs": "Parceiro do Helton tentando contato", "etapa": "oportunidade", "frente": "", "consultora": "", "updates": []}];
+const STEPS=[
+  {k:'novo',         label:'Novo lead',    color:'#5E97D6'},
+  {k:'oportunidade', label:'Oportunidade', color:'#9B7AD1'},
+  {k:'proposta',     label:'Proposta',     color:'#E9A23A'},
+  {k:'negociacao',   label:'Negociação',   color:'#E8703C'},
+  {k:'fechado',      label:'Fechado',      color:'#42B07C'},
+];
+const SIDE=[
+  {k:'relacionamento', label:'Em relacionamento', color:'#9AA3AD'},
+  {k:'frio',           label:'Frio / sem oportunidade', color:'#C0C7D0'},
+];
+const ALLST=[...STEPS,...SIDE];
+const stOf=k=>ALLST.find(s=>s.k===k)||STEPS[0];
+const stepIdx=k=>STEPS.findIndex(s=>s.k===k);
+const CTR_STATUS={implantacao:{label:'Em implantação',color:'#E9A23A'},ativo:{label:'Ativo',color:'#42B07C'},renovacao:{label:'Em renovação',color:'#5E97D6'},cancelado:{label:'Cancelado',color:'#D85A66'}};
+const AVC=['#5E97D6','#9B7AD1','#42B07C','#E9A23A','#E8703C','#0086C0','#D85A66','#7A8794'];
+
+const KEY='wizCrmAna.v2';
+const $=id=>document.getElementById(id);
+let state=load(), curView='funil', filter='all';
+
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.deals)return d;}}catch(e){}return{deals:SEED_DEALS.map(d=>Object.assign({updates:[]},d)),contracts:[],persistOK:true};}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){state.persistOK=false;}}
+function esc(s){return(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function initials(n){n=(n||'').trim();if(!n)return'?';const p=n.split(/\s+/);return(p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();}
+function colorFor(n){let h=0;for(const c of(n||''))h=(h*31+c.charCodeAt(0))>>>0;return AVC[h%AVC.length];}
+function avatar(n){if(!n)return'<span class="av" style="color:var(--faint)">—</span>';return`<span class="av"><span class="ball" style="background:${colorFor(n)}">${esc(initials(n))}</span>${esc(n)}</span>`;}
+function fmtNum(n){return(n||0).toLocaleString('pt-BR');}
+function fmtDate(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('pt-BR');}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
+function matchQ(d,q){if(!q)return true;q=q.toLowerCase();return[d.grupo,d.operadora,d.corretora,d.consultora,d.origem,d.frente].some(x=>(x||'').toLowerCase().includes(q));}
+
+/* FUNNEL hero */
+function renderFunnel(){
+  const q=$('search').value.trim();
+  const counts={},sums={};ALLST.forEach(s=>{counts[s.k]=0;sums[s.k]=0;});
+  let total=0,totalV=0;
+  state.deals.forEach(d=>{if(!matchQ(d,q))return;counts[d.etapa]=(counts[d.etapa]||0)+1;sums[d.etapa]=(sums[d.etapa]||0)+(d.vidas||0);total++;totalV+=d.vidas||0;});
+  $('funnel').innerHTML=STEPS.map((s,i)=>`
+    <button class="fstep ${filter===s.k?'active':''}" data-f="${s.k}" data-c style="--ac:${s.color}">
+      <div class="inner">
+        <div class="nrow"><span class="num" style="background:${s.color}">${i+1}</span><span class="lab">${s.label}</span></div>
+        <div class="big" style="color:${s.color}">${counts[s.k]||0}</div>
+        <div class="sub">${fmtNum(sums[s.k]||0)} vidas</div>
+      </div>
+      <span class="arrow">›</span>
+    </button>`).join('');
+  $('sidechips').innerHTML=
+    `<button class="sidechip ${filter==='all'?'active':''} allchip" data-f="all">Todos <span class="ct">${total}</span></button>`+
+    SIDE.map(s=>`<button class="sidechip ${filter===s.k?'active':''}" data-f="${s.k}"><span class="dot" style="background:${s.color}"></span>${s.label} <span class="ct">${counts[s.k]||0}</span></button>`).join('');
+  // place "Todos" first visually: prepend
+  const sc=$('sidechips');const all=sc.querySelector('.allchip');sc.insertBefore(all,sc.firstChild);
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderAll();});
+}
+
+/* CARDS */
+function renderGrid(){
+  const q=$('search').value.trim();
+  let list=state.deals.filter(d=>matchQ(d,q));
+  if(filter!=='all') list=list.filter(d=>d.etapa===filter);
+  list.sort((a,b)=>(b.vidas||0)-(a.vidas||0));
+  $('gridTitle').textContent = filter==='all'?'Todos os clientes':stOf(filter).label;
+  $('gridCnt').textContent = list.length+(list.length===1?' cliente':' clientes');
+  let h='';
+  list.forEach(d=>{
+    const s=stOf(d.etapa);const idx=stepIdx(d.etapa);
+    const prog=STEPS.map((x,i)=>`<span style="background:${i<=idx&&idx>=0?s.color:'var(--border)'}"></span>`).join('');
+    h+=`<div class="card" data-id="${d.id}" style="--ac:${s.color}">
+      <div class="ctop"><div class="cname">${esc(d.grupo)||'(sem nome)'}</div><span class="stchip" style="background:${s.color}">${s.label}</span></div>
+      <div class="cinfo">${d.operadora?`<span class="lbl">Operadora:</span> ${esc(d.operadora)}<br>`:''}${d.corretora?`<span class="lbl">Corretora:</span> ${esc(d.corretora)}`:'<span style="color:var(--faint)">Sem corretora informada</span>'}</div>
+      <div class="progress">${prog}</div>
+      <div class="cbot"><div class="vidas">${d.vidas?fmtNum(d.vidas):'—'} <small>vidas</small></div>${avatar(d.consultora||d.frente)}</div>
+    </div>`;
+  });
+  h+=`<div class="card-add" id="addCard"><span class="plus">+</span>Adicionar cliente</div>`;
+  if(!list.length) h=`<div class="empty">Nenhum cliente nesta etapa.<br><br></div>`+h;
+  $('grid').innerHTML=h;
+  document.querySelectorAll('#grid .card').forEach(c=>c.onclick=()=>openDeal(+c.dataset.id));
+  $('addCard').onclick=()=>openDealModal(filter!=='all'?filter:'novo');
+}
+
+/* CONTRATOS */
+function renderContratos(){
+  const q=$('search').value.trim().toLowerCase();
+  const list=state.contracts.filter(c=>!q||[c.cliente,c.operadora,c.consultora].some(x=>(x||'').toLowerCase().includes(q)));
+  if(!state.contracts.length){$('ctrGrid').innerHTML=`<div class="empty">Nenhum contrato ainda.<br>Quando fechar um cliente, registre o contrato aqui pra acompanhar a renovação.<br><br><button class="btn primary big" id="addCtrEmpty">+ Adicionar primeiro contrato</button></div>`;$('addCtrEmpty').onclick=()=>openCtrModal();return;}
+  $('ctrGrid').innerHTML=list.map(c=>{const st=CTR_STATUS[c.status]||CTR_STATUS.ativo;return`
+    <div class="ctr-card" data-cid="${c.id}" style="--ac:${st.color}">
+      <div class="cname">${esc(c.cliente)}<span class="stchip" style="background:${st.color}">${st.label}</span></div>
+      <div class="kv">
+        <div class="k">Operadora</div><div class="v">${esc(c.operadora)||'—'}</div>
+        <div class="k">Modalidade</div><div class="v">${esc(c.modalidade)||'—'}</div>
+        <div class="k">Vidas</div><div class="v">${c.vidas?fmtNum(c.vidas):'—'}</div>
+        <div class="k">Vigência</div><div class="v">${fmtDate(c.inicio)||'—'}</div>
+        <div class="k">Renovação</div><div class="v">${fmtDate(c.venc)||'—'}</div>
+        <div class="k">Comissão</div><div class="v">${esc(c.comissao)||'—'}</div>
+      </div>
+    </div>`;}).join('');
+  document.querySelectorAll('#ctrGrid .ctr-card').forEach(c=>c.onclick=()=>openCtrModal(+c.dataset.cid));
+}
+
+/* DEAL drawer with stepper */
+let openId=null;
+function openDeal(id){
+  openId=id;const d=state.deals.find(x=>x.id===id);if(!d)return;
+  const s=stOf(d.etapa);const idx=stepIdx(d.etapa);const inFunnel=idx>=0;
+  const stepper=STEPS.map((x,i)=>{
+    const cls=inFunnel?(i<idx?'done':(i===idx?'cur':'')):'';
+    const bg=(cls==='done'||cls==='cur')?x.color:'';
+    return`<div class="st ${cls}" data-step="${x.k}"><span class="c" style="${bg?'background:'+bg+';border-color:'+bg:''}">${cls==='done'?'✓':i+1}</span><span class="t">${x.label}</span></div>`;
+  }).join('');
+  const bubbles=d.updates&&d.updates.length?d.updates.slice().reverse().map(u=>`<div class="bubble">${esc(u.text).replace(/\n/g,'<br>')}<div class="meta"><span>${new Date(u.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span><button class="del" data-del="${u.ts}">remover</button></div></div>`).join(''):'<div style="color:var(--muted);font-size:13px">Nenhuma anotação ainda. Escreva a primeira acima 👆</div>';
+  $('drawerContent').innerHTML=`
+    <div class="dr-head"><button class="x" id="drClose">×</button><h2>${esc(d.grupo)||'(sem nome)'}</h2></div>
+    <div class="dr-body">
+      <div class="block">
+        <h4>Etapa no funil</h4>
+        <p class="help">${inFunnel?'Use os botões para avançar ou voltar o cliente de etapa.':'Este cliente está em '+s.label+'. Coloque-o de volta no funil quando quiser.'}</p>
+        <div class="stepper">${stepper}</div>
+        <div class="stepbtns">
+          <button class="btn" id="stPrev" ${(!inFunnel||idx<=0)?'disabled style=opacity:.45':''}>← Voltar</button>
+          <button class="btn primary" id="stNext" ${(inFunnel&&idx>=STEPS.length-1)?'disabled style=opacity:.45':''}>${!inFunnel?'Voltar ao funil':'Avançar etapa →'}</button>
+        </div>
+        <div class="sidebtns">
+          ${SIDE.map(x=>`<button data-side="${x.k}" class="${d.etapa===x.k?'on':''}" style="${d.etapa===x.k?'background:'+x.color:''}">${x.label}</button>`).join('')}
+        </div>
+      </div>
+
+      <div class="block">
+        <h4>Anotações</h4>
+        <p class="help">Registre reuniões, combinados e próximos passos.</p>
+        <div class="field" style="margin-bottom:8px"><textarea id="updText" placeholder="O que rolou? ex: reunião com RH, pediram proposta…"></textarea></div>
+        <button class="btn primary" id="updAdd">Adicionar anotação</button>
+        <div class="bubble-list">${bubbles}</div>
+      </div>
+
+      <div class="block">
+        <h4>Dados do cliente</h4>
+        <p class="help">Clique pra editar — salva sozinho.</p>
+        <div class="field"><label>Nome do cliente / grupo</label><input id="f_grupo" value="${esc(d.grupo)}"></div>
+        <div class="field"><label>Vidas</label><input id="f_vidas" type="number" value="${d.vidas||0}"></div>
+        <div class="row2">
+          <div class="field"><label>Operadora atual</label><input id="f_operadora" value="${esc(d.operadora)}"></div>
+          <div class="field"><label>Corretora atual</label><input id="f_corretora" value="${esc(d.corretora)}"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Parceiro de origem</label><input id="f_origem" value="${esc(d.origem)}"></div>
+          <div class="field"><label>Consultora</label><input id="f_consultora" value="${esc(d.consultora)}"></div>
+        </div>
+        <div class="field"><label>Quem está à frente</label><input id="f_frente" value="${esc(d.frente)}"></div>
+        <div class="field"><label>Observações</label><textarea id="f_obs">${esc(d.obs)}</textarea></div>
+      </div>
+
+      <div class="block"><button class="btn" id="delDeal" style="color:#D14;border-color:#F0C9CC;width:100%">Excluir cliente</button></div>
+    </div>`;
+  $('drClose').onclick=closeDrawer;
+  $('stPrev').onclick=()=>{if(inFunnel&&idx>0){d.etapa=STEPS[idx-1].k;save();openDeal(id);renderAll();toast('Voltou para '+stOf(d.etapa).label);}};
+  $('stNext').onclick=()=>{if(!inFunnel){d.etapa='novo';}else if(idx<STEPS.length-1){d.etapa=STEPS[idx+1].k;}save();openDeal(id);renderAll();toast('Agora em '+stOf(d.etapa).label);};
+  document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{d.etapa=b.dataset.step;save();openDeal(id);renderAll();});
+  document.querySelectorAll('[data-side]').forEach(b=>b.onclick=()=>{d.etapa=(d.etapa===b.dataset.side)?'novo':b.dataset.side;save();openDeal(id);renderAll();toast('Marcado como '+stOf(d.etapa).label);});
+  $('updAdd').onclick=()=>{const t=$('updText').value.trim();if(!t){toast('Escreva algo');return;}(d.updates=d.updates||[]).push({text:t,ts:Date.now()});save();openDeal(id);toast('Anotação salva');};
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{d.updates=d.updates.filter(u=>u.ts!=b.dataset.del);save();openDeal(id);});
+  const bind=(f,k,num)=>{$(f).onchange=e=>{d[k]=num?(parseInt(e.target.value)||0):e.target.value;save();renderAll();};};
+  bind('f_grupo','grupo');bind('f_vidas','vidas',true);bind('f_operadora','operadora');bind('f_corretora','corretora');bind('f_origem','origem');bind('f_consultora','consultora');bind('f_frente','frente');bind('f_obs','obs');
+  $('delDeal').onclick=()=>{if(confirm('Excluir este cliente do funil?')){state.deals=state.deals.filter(x=>x.id!==id);save();closeDrawer();renderAll();toast('Cliente excluído');}};
+  $('scrim').classList.add('open');$('drawer').classList.add('open');
+}
+function closeDrawer(){openId=null;$('scrim').classList.remove('open');$('drawer').classList.remove('open');}
+$('scrim').onclick=closeDrawer;
+
+/* modais */
+function nextId(a){return Math.max(0,...a.map(x=>x.id))+1;}
+function openDealModal(preset){['d_grupo','d_vidas','d_operadora','d_corretora','d_origem','d_consultora','d_frente'].forEach(i=>$(i).value='');$('d_etapa').innerHTML=STEPS.map(s=>`<option value="${s.k}">${s.label}</option>`).join('');if(preset&&stepIdx(preset)>=0)$('d_etapa').value=preset;$('modalDeal').classList.add('open');$('d_grupo').focus();}
+$('d_cancel').onclick=()=>$('modalDeal').classList.remove('open');
+$('modalDeal').onclick=e=>{if(e.target===$('modalDeal'))$('modalDeal').classList.remove('open');};
+$('d_save').onclick=()=>{const g=$('d_grupo').value.trim();if(!g){toast('Informe o nome do cliente');return;}state.deals.push({id:nextId(state.deals),grupo:g,etapa:$('d_etapa').value,vidas:parseInt($('d_vidas').value)||0,operadora:$('d_operadora').value.trim(),corretora:$('d_corretora').value.trim(),origem:$('d_origem').value.trim(),consultora:$('d_consultora').value.trim(),frente:$('d_frente').value.trim(),obs:'',updates:[]});save();$('modalDeal').classList.remove('open');renderAll();toast('Cliente adicionado');};
+
+let editCtrId=null;
+function openCtrModal(id){editCtrId=id||null;const c=id?state.contracts.find(x=>x.id===id):{};$('ctrTitle').textContent=id?'Editar contrato':'Novo contrato';$('c_cliente').value=c.cliente||'';$('c_operadora').value=c.operadora||'';$('c_modal').value=c.modalidade||'Saúde';$('c_vidas').value=c.vidas||'';$('c_status').value=c.status||'implantacao';$('c_inicio').value=c.inicio||'';$('c_venc').value=c.venc||'';$('c_comissao').value=c.comissao||'';$('c_consultora').value=c.consultora||'';$('c_del').style.display=id?'inline-flex':'none';$('modalCtr').classList.add('open');$('c_cliente').focus();}
+$('c_cancel').onclick=()=>$('modalCtr').classList.remove('open');
+$('modalCtr').onclick=e=>{if(e.target===$('modalCtr'))$('modalCtr').classList.remove('open');};
+$('c_save').onclick=()=>{const cl=$('c_cliente').value.trim();if(!cl){toast('Informe o cliente');return;}const o={cliente:cl,operadora:$('c_operadora').value.trim(),modalidade:$('c_modal').value,vidas:parseInt($('c_vidas').value)||0,status:$('c_status').value,inicio:$('c_inicio').value,venc:$('c_venc').value,comissao:$('c_comissao').value.trim(),consultora:$('c_consultora').value.trim()};if(editCtrId)Object.assign(state.contracts.find(x=>x.id===editCtrId),o);else{o.id=nextId(state.contracts);state.contracts.push(o);}save();$('modalCtr').classList.remove('open');renderAll();toast('Contrato salvo');};
+$('c_del').onclick=()=>{if(editCtrId&&confirm('Excluir contrato?')){state.contracts=state.contracts.filter(x=>x.id!==editCtrId);save();$('modalCtr').classList.remove('open');renderAll();toast('Contrato excluído');}};
+$('addCtrTop').onclick=()=>openCtrModal();
+
+/* tabs */
+function switchView(v){curView=v;$('tabFunil').classList.toggle('on',v==='funil');$('tabContratos').classList.toggle('on',v==='contratos');$('viewFunil').style.display=v==='funil'?'':'none';$('viewContratos').style.display=v==='contratos'?'':'none';renderAll();}
+$('tabFunil').onclick=()=>switchView('funil');$('tabContratos').onclick=()=>switchView('contratos');
+
+/* import/export */
+$('btnExport').onclick=()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='wiz-crm-ana-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Backup exportado');};
+$('btnImport').onclick=()=>$('fileInput').click();
+$('fileInput').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d&&d.deals){state=d;state.deals=state.deals.map(x=>Object.assign({updates:[]},x));state.contracts=state.contracts||[];save();renderAll();toast('Importado!');}else toast('Arquivo inválido');}catch(err){toast('Erro ao ler');}};r.readAsText(f);e.target.value='';};
+$('search').addEventListener('input',renderAll);
+
+function renderAll(){if(curView==='funil'){renderFunnel();renderGrid();}else renderContratos();}
+renderAll();
+if(!state.persistOK||(()=>{try{localStorage.setItem('_t','1');localStorage.removeItem('_t');return false;}catch(e){return true;}})()){setTimeout(()=>toast('Salvamento local indisponível aqui. Funciona publicado no GitHub Pages — use Exportar pra backup.'),700);}
+</script>
+</body>
+</html>
