@@ -277,13 +277,12 @@
 <div class="modal" id="modalDeal">
   <div class="box">
     <h3>Novo cliente</h3>
-    <p class="msub">Só o nome é obrigatório. O resto você completa depois.</p>
-    <div class="field"><label>Cliente / grupo *</label><input id="d_grupo"></div>
-    <div class="row2"><div class="field"><label>Etapa</label><select id="d_etapa"></select></div><div class="field"><label>Vidas</label><input id="d_vidas" type="number" min="0"></div></div>
-    <div class="row2"><div class="field"><label>Operadora atual</label><input id="d_operadora"></div><div class="field"><label>Corretora atual</label><input id="d_corretora"></div></div>
-    <div class="row2"><div class="field"><label>Origem</label><input id="d_origem"></div><div class="field"><label>Consultora</label><input id="d_consultora"></div></div>
-    <div class="field"><label>Quem está à frente</label><input id="d_frente"></div>
-    <div class="actions"><button class="btn" id="d_cancel">Cancelar</button><button class="btn primary" id="d_save">Adicionar</button></div>
+    <p class="msub">Preencha os dados do cliente. Só o nome é obrigatório.</p>
+    <div class="field"><label>Nome do cliente *</label><input id="d_grupo"></div>
+    <div class="row2"><div class="field"><label>Etapa</label><select id="d_etapa"></select></div><div class="field"><label>Origem</label><input id="d_origem"></div></div>
+    <div class="row2"><div class="field"><label>Operadora atual</label><input id="d_operadora"></div><div class="field"><label>Vidas</label><input id="d_vidas" type="number" min="0"></div></div>
+    <div class="row2"><div class="field"><label>Quem está à frente</label><input id="d_frente"></div><div class="field"><label>Consultora</label><input id="d_consultora"></div></div>
+    <div class="actions"><button class="btn" id="d_cancel">Cancelar</button><button class="btn primary" id="d_save">Adicionar cliente</button></div>
   </div>
 </div>
 
@@ -314,7 +313,7 @@ const DEFAULT_STAGES=[
   {k:'proposta',label:'Proposta de Serviço',color:'#E07C3E'},
   {k:'negociacao',label:'Em negociação',color:'#E8703C'},
   {k:'fechado',label:'Fechado',color:'#42B07C'},
-  {k:'relacionamento',label:'Sem oportunidade. Manter Relacionamento',color:'#9AA3AD'},
+  {k:'relacionamento',label:'Sem oportunidade agora.Manter Relacionamento',color:'#9AA3AD'},
   {k:'frio',label:'FRIO',color:'#C0C7D0'},
   {k:'naoalocado',label:'Não alocado / Outros',color:'#B0AEB8'},
 ];
@@ -327,13 +326,14 @@ const AVC=['#5A4FE2','#9B7AD1','#42B07C','#E9A23A','#E8703C','#2D9CDB','#E14B5A'
 const KEY='wizCrmAna.v4',$=id=>document.getElementById(id);
 let state=load(),nav='inicio',filter='all';
 
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.deals){if(!d.stages||!d.stages.length)d.stages=DEFAULT_STAGES.map(s=>({...s}));return d;}}}catch(e){}return{deals:SEED_DEALS.map(d=>Object.assign({updates:[],tasks:[],contracts:[]},d)),stages:DEFAULT_STAGES.map(s=>({...s})),persistOK:true};}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.deals){if(!d.stages||!d.stages.length)d.stages=DEFAULT_STAGES.map(s=>({...s}));const rl=d.stages.find(s=>s.k==='relacionamento');if(rl&&rl.label==='Sem oportunidade. Manter Relacionamento')rl.label='Sem oportunidade agora.Manter Relacionamento';return d;}}}catch(e){}return{deals:SEED_DEALS.map(d=>Object.assign({updates:[],tasks:[],contracts:[]},d)),stages:DEFAULT_STAGES.map(s=>({...s})),persistOK:true};}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){state.persistOK=false;}}
 function esc(s){return(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function initials(n){n=(n||'').trim();if(!n)return'?';const p=n.split(/\s+/);return(p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();}
 function colorFor(n){let h=0;for(const c of(n||''))h=(h*31+c.charCodeAt(0))>>>0;return AVC[h%AVC.length];}
 function avatar(n){if(!n)return'<span class="dash">—</span>';return`<span class="av"><span class="ball" style="background:${colorFor(n)}">${esc(initials(n))}</span>${esc(n)}</span>`;}
 function fmtNum(n){return(n||0).toLocaleString('pt-BR');}
+function fmtSize(b){if(!b)return'';if(b<1024)return b+' B';if(b<1048576)return Math.round(b/1024)+' KB';return (b/1048576).toFixed(1)+' MB';}
 function today(){return new Date().toISOString().slice(0,10);}
 function fmtDue(d){if(!d)return'';const t=today();if(d===t)return'Hoje';const dt=new Date(d+'T00:00:00'),tt=new Date(t+'T00:00:00');const diff=Math.round((dt-tt)/864e5);if(diff===1)return'Amanhã';if(diff===-1)return'Ontem';return dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});}
 function fmtDate(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('pt-BR');}
@@ -370,15 +370,22 @@ function renderInicio(){
     <div class="kpi amber"><div class="lbl">Sem consultora</div><div class="num">${semCons}</div><div class="sub">não alocados</div></div>
   </div>`;
 
-  // resumo: operadoras + consultoras
-  const ops=rank(x=>splitOps(x.operadora)).slice(0,6);
-  const cons=rank(x=>x.consultora?[x.consultora]:[]).slice(0,6);
+  // resumo: operadoras (cada operadora aparece) + consultoras (1 por cliente)
+  const CATCH=['Sem operadora','Sem consultora'];
+  const opMap={};let comOp=0,semOp=0,semOpV=0;
+  d.forEach(x=>{const o=splitOps(x.operadora);if(o.length===0){semOp++;semOpV+=(x.vidas||0);return;}comOp++;o.forEach(nm=>{if(!opMap[nm])opMap[nm]={n:0,vidas:0};opMap[nm].n++;opMap[nm].vidas+=(x.vidas||0);});});
+  let ops=Object.entries(opMap).map(([name,v])=>({name,...v})).sort((a,b)=>b.n-a.n);
+  ops.push({name:'Sem operadora',n:semOp,vidas:semOpV});
+  function rankBy(bucketFn,catchalls){const m={};d.forEach(x=>{const k=bucketFn(x);if(!m[k])m[k]={n:0,vidas:0};m[k].n++;m[k].vidas+=(x.vidas||0);});let arr=Object.entries(m).map(([name,v])=>({name,...v}));const cat=arr.filter(x=>catchalls.includes(x.name)).sort((a,b)=>catchalls.indexOf(a.name)-catchalls.indexOf(b.name));const reg=arr.filter(x=>!catchalls.includes(x.name)).sort((a,b)=>b.n-a.n);return reg.concat(cat);}
+  const cons=rankBy(x=>(x.consultora||'').trim()||'Sem consultora',['Sem consultora']);
   const maxOp=Math.max(1,...ops.map(o=>o.n)),maxC=Math.max(1,...cons.map(c=>c.n));
-  const bar=(items,max,color)=>items.length?items.map(i=>`
-    <div class="rk"><div class="rk-top"><span class="rk-name">${esc(i.name)}</span><span class="rk-val">${i.n} <small>· ${fmtNum(i.vidas)} vidas</small></span></div><div class="rk-bar"><span style="width:${Math.round(i.n/max*100)}%;background:${color}"></span></div></div>`).join(''):'<div style="color:var(--muted);font-size:13px;padding:6px 0">Sem dados ainda.</div>';
+  const bar=(items,max,color,footer)=>(items.length?items.map(i=>{const cat=CATCH.includes(i.name);return`
+    <div class="rk"><div class="rk-top"><span class="rk-name"${cat?' style="color:var(--amber);font-style:italic"':''}>${esc(i.name)}</span><span class="rk-val">${i.n} <small>· ${fmtNum(i.vidas)} vidas</small></span></div><div class="rk-bar"><span style="width:${Math.round(i.n/max*100)}%;background:${cat?'#CDA24E':color}"></span></div></div>`;}).join(''):'<div style="color:var(--muted);font-size:13px;padding:6px 0">Sem dados ainda.</div>')+(footer||'');
+  const opFooter=`<div class="rk-total">${comOp} com operadora · ${semOp} sem · <b>${d.length} clientes</b><div style="font-weight:400;color:var(--muted);font-size:11.5px;margin-top:4px">Cliente com mais de uma operadora aparece em cada uma.</div></div>`;
+  const consFooter=`<div class="rk-total">Total: <b>${cons.reduce((a,b)=>a+b.n,0)} clientes</b></div>`;
   h+=`<div class="resumo2">
-    <div class="panel"><div class="panel-h"><h2>Operadoras no pipeline</h2><span class="lnk" style="cursor:default">${ops.length} principais</span></div><div class="rklist">${bar(ops,maxOp,'#F7941D')}</div></div>
-    <div class="panel"><div class="panel-h"><h2>Por consultora</h2><span class="lnk" style="cursor:default">${semCons} sem consultora</span></div><div class="rklist">${bar(cons,maxC,'#42B07C')}</div></div>
+    <div class="panel"><div class="panel-h"><h2>Operadoras no pipeline</h2><span class="lnk" style="cursor:default">cada operadora</span></div><div class="rklist">${bar(ops,maxOp,'#F7941D',opFooter)}</div></div>
+    <div class="panel"><div class="panel-h"><h2>Por consultora</h2><span class="lnk" style="cursor:default">por cliente</span></div><div class="rklist">${bar(cons,maxC,'#42B07C',consFooter)}</div></div>
   </div>`;
 
   // clientes por etapa (todas as etapas do Excel, auditável, soma 75)
@@ -471,7 +478,7 @@ function renderClientes(){
   document.querySelectorAll('#viewClientes .gbt').forEach(b=>b.onclick=()=>{cliBy=b.dataset.by;addingTo=null;editStage=null;renderClientes();});
   document.querySelectorAll('#viewClientes .mgrp-h').forEach(x=>x.onclick=()=>{cliCol[cliBy+':'+x.dataset.gk]=!cliCol[cliBy+':'+x.dataset.gk];renderClientes();});
   document.querySelectorAll('#viewClientes .mrow').forEach(r=>r.onclick=()=>openDeal(+r.dataset.id));
-  document.querySelectorAll('#viewClientes .add-row[data-add]').forEach(a=>a.onclick=()=>{addingTo=cliBy+':'+a.dataset.add;renderClientes();});
+  document.querySelectorAll('#viewClientes .add-row[data-add]').forEach(a=>a.onclick=()=>{if(cliBy==='etapa')openDealModal({etapa:a.dataset.add});else openDealModal({consultora:a.dataset.add==='__none'?'':a.dataset.add});});
   if(addingTo){
     const inp=$('addInput');
     const doAdd=()=>{const name=(inp.value||'').trim();if(!name){addingTo=null;renderClientes();return;}addClientToGroup(name);renderClientes();};
@@ -558,30 +565,27 @@ function renderDeal(){
     </div>
     <div class="block"><button class="btn" id="delDeal" style="color:var(--red);border-color:#F0C9CC;width:100%">Excluir cliente</button></div>`;
   } else if(drTab==='tarefas'){
-    const tks=(d.tasks||[]).slice().sort((a,b)=>(a.done-b.done)||((a.due||'9')<(b.due||'9')?-1:1));
+    const tks=(d.tasks||[]).slice().sort((a,b)=>(a.done-b.done));
     body=`<div class="block"><h4>Nova tarefa</h4>
-      <div class="field"><label>O que fazer</label><input id="nt_title" placeholder="ex: Ligar para o RH"></div>
-      <div class="row2"><div class="field"><label>Tipo</label><select id="nt_type">${Object.entries(TT).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}</select></div><div class="field"><label>Quando</label><input id="nt_due" type="date" value="${today()}"></div></div>
-      <button class="btn primary" id="nt_add" style="width:100%">+ Adicionar tarefa</button>
+      <div style="display:flex;gap:8px"><input id="nt_title" placeholder="ex: Ligar para o RH" style="flex:1;border:1px solid var(--border-2);border-radius:8px;padding:9px 11px;font-size:14px;outline:none"><button class="btn primary" id="nt_add">Adicionar</button></div>
+      <p class="help" style="margin:9px 0 0">Pode adicionar quantas tarefas quiser — digite e dê Enter.</p>
     </div>
     <div class="block"><h4>Tarefas (${tks.length})</h4>
-      <div class="tklist">${tks.length?tks.map(t=>{const ty=TT[t.type]||TT.followup;const over=t.due&&!t.done&&t.due<today();return`<div class="tkitem"><div class="tcheck ${t.done?'done':''}" data-tk="${t.ts}">${t.done?'✓':''}</div><div class="ti"><div class="tt ${t.done?'done':''}">${esc(t.title)}</div><div class="tm"><span class="ttype" style="background:${ty.color}">${ty.label}</span><span class="${over?'':''}" style="${over?'color:var(--red);font-weight:600':''}">${t.due?fmtDue(t.due):'sem data'}</span></div></div><button class="tdel" data-tkdel="${t.ts}">✕</button></div>`;}).join(''):'<div style="color:var(--muted);font-size:13px">Nenhuma tarefa. Crie a primeira acima.</div>'}</div>
+      <div class="tklist">${tks.length?tks.map(t=>`<div class="tkitem"><div class="tcheck ${t.done?'done':''}" data-tk="${t.ts}">${t.done?'✓':''}</div><div class="ti"><div class="tt ${t.done?'done':''}">${esc(t.title)}</div></div><button class="tdel" data-tkdel="${t.ts}">✕</button></div>`).join(''):'<div style="color:var(--muted);font-size:13px">Nenhuma tarefa ainda. Adicione acima.</div>'}</div>
     </div>`;
   } else if(drTab==='contrato'){
     const cts=(d.contracts||[]);
-    const editing=ctrEditTs?cts.find(c=>c.ts===ctrEditTs):null;const ec=editing||{};
-    body=`<div class="block"><h4>${editing?'Editar contrato':'Anexar contrato'}</h4>
-      <div class="row2"><div class="field"><label>Operadora</label><input id="ct_op" value="${esc(ec.operadora!=null?ec.operadora:(d.operadora||''))}"></div><div class="field"><label>Modalidade</label><select id="ct_mod">${['Saúde','Odonto','Vida','Saúde + Odonto','Outro'].map(m=>`<option ${(ec.modalidade||'Saúde')===m?'selected':''}>${m}</option>`).join('')}</select></div></div>
-      <div class="row2"><div class="field"><label>Vidas</label><input id="ct_vidas" type="number" value="${ec.vidas!=null?ec.vidas:(d.vidas||'')}"></div><div class="field"><label>Status</label><select id="ct_status">${Object.entries(CTR_STATUS).map(([k,v])=>`<option value="${k}" ${(ec.status||'implantacao')===k?'selected':''}>${v.label}</option>`).join('')}</select></div></div>
-      <div class="row2"><div class="field"><label>Início de vigência</label><input id="ct_inicio" type="date" value="${ec.inicio||''}"></div><div class="field"><label>Renovação</label><input id="ct_venc" type="date" value="${ec.venc||''}"></div></div>
-      <div class="field"><label>Comissão / Fee</label><input id="ct_com" value="${esc(ec.comissao||'')}" placeholder="ex: 3% / R$ 10k mês"></div>
-      <div style="display:flex;gap:8px"><button class="btn primary" id="ct_add" style="flex:1">${editing?'Salvar alterações':'+ Anexar contrato'}</button>${editing?'<button class="btn" id="ct_cancel">Cancelar</button>':''}</div>
+    body=`<div class="block"><h4>Anexar contrato</h4>
+      <p class="help">Anexe o arquivo do contrato (PDF, imagem ou Word). Pode anexar mais de um.</p>
+      <button class="btn primary" id="ct_pick" style="width:100%">+ Anexar contrato</button>
+      <input type="file" id="ct_file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display:none">
     </div>
     <div class="block"><h4>Contratos anexados (${cts.length})</h4>
-      <div class="tklist">${cts.length?cts.map(c=>{const st=CTR_STATUS[c.status]||CTR_STATUS.ativo;return`<div class="tkitem"><div class="ti"><div class="tt">${esc(c.operadora)||'(sem operadora)'}${c.modalidade?' · '+esc(c.modalidade):''}</div><div class="tm"><span class="ttype" style="background:${st.color}">${st.label}</span>${c.vidas?'<span>'+fmtNum(c.vidas)+' vidas</span>':''}${c.venc?'<span>renova '+fmtDate(c.venc)+'</span>':''}${c.comissao?'<span>'+esc(c.comissao)+'</span>':''}</div></div><button data-ctedit="${c.ts}" style="border:0;background:none;color:var(--pri);font-size:12px;font-weight:600;cursor:pointer">editar</button><button class="tdel" data-ctdel="${c.ts}">✕</button></div>`;}).join(''):'<div style="color:var(--muted);font-size:13px">Nenhum contrato anexado. Preencha acima quando fechar o cliente.</div>'}</div>
+      <div class="tklist">${cts.length?cts.map(c=>`<div class="tkitem"><div class="ti"><div class="tt">${esc(c.name||c.operadora||'Contrato')}</div><div class="tm">${c.size?'<span>'+fmtSize(c.size)+'</span>':''}${c.ts?'<span>'+new Date(c.ts).toLocaleDateString('pt-BR')+'</span>':''}</div></div>${c.data?`<button data-ctopen="${c.ts}" style="border:0;background:none;color:var(--pri);font-size:12px;font-weight:600;cursor:pointer">abrir</button>`:''}<button class="tdel" data-ctdel="${c.ts}">✕</button></div>`).join(''):'<div style="color:var(--muted);font-size:13px">Nenhum contrato anexado ainda.</div>'}</div>
     </div>`;
   } else {
-    body=`<div class="block"><h4>Nova anotação</h4><div class="field"><textarea id="updText" placeholder="Reunião, combinado, próximo passo…"></textarea></div><button class="btn primary" id="updAdd" style="width:100%">Adicionar anotação</button><div class="bubble-list">${bubbles}</div></div>`;
+    const bubbles=d.updates&&d.updates.length?d.updates.slice().reverse().map(u=>`<div class="bubble">${esc(u.text).replace(/\n/g,'<br>')}<div class="meta"><span>${new Date(u.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span><button class="del" data-del="${u.ts}">remover</button></div></div>`).join(''):'<div style="color:var(--muted);font-size:13px">Nenhuma observação ainda.</div>';
+    body=`<div class="block"><h4>Nova observação</h4><div class="field"><textarea id="updText" placeholder="Reunião, combinado, próximo passo…"></textarea></div><button class="btn primary" id="updAdd" style="width:100%">Adicionar observação</button><div class="bubble-list">${bubbles}</div></div>`;
   }
   $('drawerContent').innerHTML=`
     <div class="dr-head">
@@ -592,7 +596,7 @@ function renderDeal(){
         <button data-t="geral" class="${drTab==='geral'?'on':''}">Visão geral</button>
         <button data-t="tarefas" class="${drTab==='tarefas'?'on':''}">Tarefas${tkCount?`<span class="tb">${tkCount}</span>`:''}</button>
         <button data-t="contrato" class="${drTab==='contrato'?'on':''}">Contrato${ctrCount?`<span class="tb">${ctrCount}</span>`:''}</button>
-        <button data-t="anotacoes" class="${drTab==='anotacoes'?'on':''}">Anotações</button>
+        <button data-t="anotacoes" class="${drTab==='anotacoes'?'on':''}">Observação</button>
       </div>
     </div>
     <div class="dr-body">${body}</div>`;
@@ -604,19 +608,16 @@ function renderDeal(){
     bind('f_grupo','grupo');bind('f_vidas','vidas',true);bind('f_operadora','operadora');bind('f_corretora','corretora');bind('f_origem','origem');bind('f_consultora','consultora');bind('f_frente','frente');bind('f_obs','obs');
     $('delDeal').onclick=()=>{if(confirm('Excluir este cliente?')){state.deals=state.deals.filter(x=>x.id!==openId);save();closeDrawer();renderAll();toast('Cliente excluído');}};
   } else if(drTab==='tarefas'){
-    $('nt_add').onclick=()=>{const t=$('nt_title').value.trim();if(!t){toast('Escreva a tarefa');return;}d.tasks.push({ts:Date.now(),title:t,type:$('nt_type').value,due:$('nt_due').value,done:false});save();renderDeal();renderAll();toast('Tarefa criada');};
+    const addTk=()=>{const t=$('nt_title').value.trim();if(!t){toast('Escreva a tarefa');return;}(d.tasks=d.tasks||[]).push({ts:Date.now(),title:t,done:false});save();renderDeal();toast('Tarefa adicionada');};
+    $('nt_add').onclick=addTk;
+    const nti=$('nt_title');if(nti){nti.focus();nti.onkeydown=e=>{if(e.key==='Enter')addTk();};}
     document.querySelectorAll('[data-tk]').forEach(c=>c.onclick=()=>toggleTask(openId,+c.dataset.tk));
     document.querySelectorAll('[data-tkdel]').forEach(b=>b.onclick=()=>delTask(openId,+b.dataset.tkdel));
   } else if(drTab==='contrato'){
-    $('ct_add').onclick=()=>{
-      const obj={operadora:$('ct_op').value.trim(),modalidade:$('ct_mod').value,vidas:parseInt($('ct_vidas').value)||0,status:$('ct_status').value,inicio:$('ct_inicio').value,venc:$('ct_venc').value,comissao:$('ct_com').value.trim()};
-      if(ctrEditTs){Object.assign(d.contracts.find(x=>x.ts===ctrEditTs),obj);ctrEditTs=null;toast('Contrato atualizado');}
-      else{obj.ts=Date.now();(d.contracts=d.contracts||[]).push(obj);toast('Contrato anexado');}
-      save();renderDeal();renderAll();
-    };
-    $('ct_cancel')&&($('ct_cancel').onclick=()=>{ctrEditTs=null;renderDeal();});
-    document.querySelectorAll('[data-ctedit]').forEach(b=>b.onclick=()=>{ctrEditTs=+b.dataset.ctedit;renderDeal();});
-    document.querySelectorAll('[data-ctdel]').forEach(b=>b.onclick=()=>{if(confirm('Excluir contrato?')){d.contracts=d.contracts.filter(x=>x.ts!=b.dataset.ctdel);if(ctrEditTs==b.dataset.ctdel)ctrEditTs=null;save();renderDeal();renderAll();toast('Contrato excluído');}});
+    $('ct_pick').onclick=()=>$('ct_file').click();
+    $('ct_file').onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>4*1024*1024){toast('Arquivo muito grande (máx 4MB)');e.target.value='';return;}const r=new FileReader();r.onload=()=>{(d.contracts=d.contracts||[]).push({ts:Date.now(),name:f.name,size:f.size,type:f.type,data:r.result});save();renderDeal();toast('Contrato anexado');};r.readAsDataURL(f);};
+    document.querySelectorAll('[data-ctopen]').forEach(b=>b.onclick=()=>{const c=d.contracts.find(x=>x.ts==b.dataset.ctopen);if(!c||!c.data)return;try{const arr=c.data.split(',');const mime=(arr[0].match(/:(.*?);/)||[])[1]||c.type||'application/octet-stream';const bin=atob(arr[1]);const u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([u8],{type:mime}));window.open(url,'_blank');}catch(err){const a=document.createElement('a');a.href=c.data;a.download=c.name||'contrato';a.click();}});
+    document.querySelectorAll('[data-ctdel]').forEach(b=>b.onclick=()=>{if(confirm('Remover este contrato?')){d.contracts=d.contracts.filter(x=>x.ts!=b.dataset.ctdel);save();renderDeal();toast('Contrato removido');}});
   } else {
     $('updAdd').onclick=()=>{const t=$('updText').value.trim();if(!t){toast('Escreva algo');return;}(d.updates=d.updates||[]).push({text:t,ts:Date.now()});save();renderDeal();toast('Anotação salva');};
     document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{d.updates=d.updates.filter(u=>u.ts!=b.dataset.del);save();renderDeal();});
@@ -627,10 +628,10 @@ $('scrim').onclick=closeDrawer;
 
 /* modais */
 function nextId(a){return Math.max(0,...a.map(x=>x.id))+1;}
-function openDealModal(){['d_grupo','d_vidas','d_operadora','d_corretora','d_origem','d_consultora','d_frente'].forEach(i=>$(i).value='');$('d_etapa').innerHTML=state.stages.map(s=>`<option value="${s.k}">${s.label}</option>`).join('');$('modalDeal').classList.add('open');$('d_grupo').focus();}
+function openDealModal(opts){opts=opts||{};['d_grupo','d_vidas','d_operadora','d_origem','d_consultora','d_frente'].forEach(i=>$(i).value='');$('d_etapa').innerHTML=state.stages.map(s=>`<option value="${s.k}">${esc(s.label)}</option>`).join('');if(opts.etapa)$('d_etapa').value=opts.etapa;if(opts.consultora)$('d_consultora').value=opts.consultora;$('modalDeal').classList.add('open');$('d_grupo').focus();}
 $('d_cancel').onclick=()=>$('modalDeal').classList.remove('open');
 $('modalDeal').onclick=e=>{if(e.target===$('modalDeal'))$('modalDeal').classList.remove('open');};
-$('d_save').onclick=()=>{const g=$('d_grupo').value.trim();if(!g){toast('Informe o cliente');return;}state.deals.push({id:nextId(state.deals),grupo:g,etapa:$('d_etapa').value,vidas:parseInt($('d_vidas').value)||0,operadora:$('d_operadora').value.trim(),corretora:$('d_corretora').value.trim(),origem:$('d_origem').value.trim(),consultora:$('d_consultora').value.trim(),frente:$('d_frente').value.trim(),obs:'',updates:[],tasks:[]});save();$('modalDeal').classList.remove('open');renderAll();toast('Cliente adicionado');};
+$('d_save').onclick=()=>{const g=$('d_grupo').value.trim();if(!g){toast('Informe o nome do cliente');return;}state.deals.push({id:nextId(state.deals),grupo:g,etapa:$('d_etapa').value,vidas:parseInt($('d_vidas').value)||0,operadora:$('d_operadora').value.trim(),corretora:'',origem:$('d_origem').value.trim(),consultora:$('d_consultora').value.trim(),frente:$('d_frente').value.trim(),obs:'',updates:[],tasks:[],contracts:[]});save();$('modalDeal').classList.remove('open');renderAll();toast('Cliente adicionado');};
 
 function openTaskModal(){$('t_deal').innerHTML=state.deals.slice().sort((a,b)=>(a.grupo||'').localeCompare(b.grupo||'')).map(d=>`<option value="${d.id}">${esc(d.grupo)}</option>`).join('');$('t_type').innerHTML=Object.entries(TT).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');$('t_title').value='';$('t_due').value=today();$('modalTask').classList.add('open');$('t_title').focus();}
 $('t_cancel').onclick=()=>$('modalTask').classList.remove('open');
