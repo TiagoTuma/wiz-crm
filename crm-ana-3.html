@@ -258,7 +258,7 @@
   <div class="sb-foot">
     <button class="btn" id="btnImportXls">⬆ Importar Excel</button>
     <button class="btn" id="btnExportXls">⬇ Exportar Excel</button>
-    <div class="sb-mini"><button id="btnExport">backup .json</button><span>·</span><button id="btnImport">restaurar</button></div>
+    <div class="sb-mini"><button id="btnExport">backup .json</button><span>·</span><button id="btnImport">restaurar</button><span>·</span><button id="btnReset">recarregar base</button></div>
   </div>
 </aside>
 
@@ -330,7 +330,7 @@ const TT={ligacao:{label:'Ligação',color:'#5A4FE2'},email:{label:'E-mail',colo
 const CTR_STATUS={implantacao:{label:'Em implantação',color:'#E9A23A'},ativo:{label:'Ativo',color:'#42B07C'},renovacao:{label:'Em renovação',color:'#5E97D6'},cancelado:{label:'Cancelado',color:'#E14B5A'}};
 const AVC=['#5A4FE2','#9B7AD1','#42B07C','#E9A23A','#E8703C','#2D9CDB','#E14B5A','#7A8794'];
 
-const KEY='wizCrmAna.v4',$=id=>document.getElementById(id);
+const KEY='wizCrmAna.v5',$=id=>document.getElementById(id);
 let state=load(),nav='inicio',filter='all';
 
 function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.deals){if(!d.stages||!d.stages.length)d.stages=DEFAULT_STAGES.map(s=>({...s}));const rl=d.stages.find(s=>s.k==='relacionamento');if(rl&&rl.label==='Sem oportunidade. Manter Relacionamento')rl.label='Sem oportunidade agora.Manter Relacionamento';return d;}}}catch(e){}return{deals:SEED_DEALS.map(d=>Object.assign({updates:[],tasks:[],contracts:[]},d)),stages:DEFAULT_STAGES.map(s=>({...s})),persistOK:true};}
@@ -679,6 +679,8 @@ function importExcel(file){
   r.readAsArrayBuffer(file);
 }
 $('btnExportXls').onclick=exportExcel;
+function resetBase(){if(!confirm('Recarregar a base com os 81 clientes do Excel?\n\nIsso substitui os clientes atuais (tarefas, contratos e observações dos clientes atuais serão perdidos). Faça um backup .json antes se precisar.'))return;state={deals:SEED_DEALS.map(d=>Object.assign({updates:[],tasks:[],contracts:[]},d)),stages:DEFAULT_STAGES.map(s=>({...s})),persistOK:true};save();nav='inicio';setNav('inicio');toast('Base recarregada — 81 clientes');}
+$('btnReset').onclick=resetBase;
 $('btnImportXls').onclick=()=>$('xlsInput').click();
 $('xlsInput').onchange=e=>{const f=e.target.files[0];if(f)importExcel(f);e.target.value='';};
 $('btnExport').onclick=()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='wiz-crm-ana-'+today()+'.json';a.click();toast('Backup exportado');};
