@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
     --bg:#F6F7F9; --panel:#FFFFFF; --ink:#1B1B2F; --ink2:#5C6270; --muted:#8A90A0; --faint:#BCC0CC;
@@ -44,6 +45,9 @@
   .sb-mini button{border:0;background:none;color:var(--muted);font-size:11px;cursor:pointer;padding:2px}
   .sb-mini button:hover{color:var(--pri-ink);text-decoration:underline}
   .sb-mini span{color:var(--faint);font-size:10px}
+  .conn{font-size:11px;font-weight:700;text-align:center;padding:5px;border-radius:7px;margin-bottom:2px}
+  .conn.on{color:#1F8F5B;background:#E7F6EE}
+  .conn.off{color:#B08300;background:#FBF1D8}
 
   .main{margin-left:var(--sb);min-height:100vh}
   .topbar{position:sticky;top:0;background:rgba(246,247,249,.85);backdrop-filter:blur(8px);z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 26px;border-bottom:1px solid var(--border)}
@@ -256,6 +260,7 @@
     <button data-nav="clientes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clientes</button>
   </nav>
   <div class="sb-foot">
+    <div id="connDot" class="conn off">● conectando…</div>
     <button class="btn" id="btnImportXls">⬆ Importar Excel</button>
     <button class="btn" id="btnExportXls">⬇ Exportar Excel</button>
     <div class="sb-mini"><button id="btnExport">backup .json</button><span>·</span><button id="btnImport">restaurar</button><span>·</span><button id="btnReset">recarregar base</button></div>
@@ -332,9 +337,72 @@ const AVC=['#5A4FE2','#9B7AD1','#42B07C','#E9A23A','#E8703C','#2D9CDB','#E14B5A'
 
 const KEY='wizCrmAna.v5',$=id=>document.getElementById(id);
 let state=load(),nav='inicio',filter='all';
+/* ===== Nuvem (Supabase) — colaboração em tempo real ===== */
+const SB_URL='https://jxljbpmexostewcbmhvp.supabase.co';
+const SB_KEY='sb_publishable_K-3YS3h0rf1P5AhYqUPbYg_rntnT_1Q';
+let sb=null,cloud=false,lastSynced={},lastStages='',syncTimer=null,applyingRemote=false;
+function uid(){return Date.now()*1000+Math.floor(Math.random()*1000);}
+function setConn(on){const el=$('connDot');if(!el)return;el.className='conn '+(on?'on':'off');el.textContent=(on?'● Online — compartilhado':'● Offline — local (toque p/ ver motivo)');el.style.cursor=on?'default':'pointer';el.onclick=on?null:()=>alert('Motivo do modo offline:\n\n'+(window.__sbError||'desconhecido')+'\n\nObs: no preview do editor isso é normal. Teste no link publicado (GitHub Pages).');}
+async function boot(){
+  try{
+    if(typeof supabase==='undefined')throw new Error('lib supabase ausente');
+    sb=supabase.createClient(SB_URL,SB_KEY,{realtime:{params:{eventsPerSecond:5}}});
+    const {data:cli,error:e1}=await sb.from('clientes').select('id,data');
+    if(e1)throw e1;
+    const {data:mt}=await sb.from('meta').select('id,data').eq('id','stages');
+    if(!cli||cli.length===0){
+      const seed=SEED_DEALS.map(d=>Object.assign({updates:[],tasks:[],contracts:[]},d));
+      await sb.from('clientes').upsert(seed.map(d=>({id:String(d.id),data:d})));
+      await sb.from('meta').upsert({id:'stages',data:DEFAULT_STAGES});
+      state={deals:seed,stages:DEFAULT_STAGES.map(s=>({...s})),persistOK:true};
+    } else {
+      state={deals:cli.map(r=>r.data),stages:(mt&&mt[0]&&mt[0].data)||DEFAULT_STAGES.map(s=>({...s})),persistOK:true};
+    }
+    lastSynced={};state.deals.forEach(d=>lastSynced[String(d.id)]=JSON.stringify(d));lastStages=JSON.stringify(state.stages);
+    try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+    cloud=true;setConn(true);subscribeRealtime();
+  }catch(err){
+    const msg=(err&&(err.message||err.error_description||err.hint))?(err.message||err.error_description||err.hint):JSON.stringify(err);
+    window.__sbError=msg;
+    console.error('Supabase indisponível — usando dados locais. Motivo:',msg,err);
+    cloud=false;setConn(false);state=load();
+  }
+  renderAll();
+}
+async function syncToCloud(){
+  if(!sb||!cloud)return;
+  try{
+    const cur={};state.deals.forEach(d=>cur[String(d.id)]=JSON.stringify(d));
+    const ups=[];for(const id in cur){if(lastSynced[id]!==cur[id]){const d=state.deals.find(x=>String(x.id)===id);ups.push({id,data:d});}}
+    const dels=[];for(const id in lastSynced){if(!(id in cur))dels.push(id);}
+    if(ups.length)await sb.from('clientes').upsert(ups);
+    if(dels.length)await sb.from('clientes').delete().in('id',dels);
+    const st=JSON.stringify(state.stages);
+    if(st!==lastStages){await sb.from('meta').upsert({id:'stages',data:state.stages});lastStages=st;}
+    lastSynced=cur;
+  }catch(err){console.error('Erro ao sincronizar',err);}
+}
+function rerenderKeepingDrawer(){renderAll();if(typeof openId!=='undefined'&&openId!=null){const d=state.deals.find(x=>x.id===openId);if(d)renderDeal();else closeDrawer();}}
+function subscribeRealtime(){
+  try{
+    sb.channel('crm-sync')
+      .on('postgres_changes',{event:'*',schema:'public',table:'clientes'},p=>{
+        applyingRemote=true;
+        try{
+          if(p.eventType==='DELETE'){const id=String(p.old.id);state.deals=state.deals.filter(d=>String(d.id)!==id);delete lastSynced[id];rerenderKeepingDrawer();}
+          else{const id=String(p.new.id),d=p.new.data,s=JSON.stringify(d);if(lastSynced[id]===s)return;const i=state.deals.findIndex(x=>String(x.id)===id);if(i>=0)state.deals[i]=d;else state.deals.push(d);lastSynced[id]=s;rerenderKeepingDrawer();}
+        }finally{applyingRemote=false;}
+      })
+      .on('postgres_changes',{event:'*',schema:'public',table:'meta'},p=>{
+        applyingRemote=true;
+        try{if(p.new&&p.new.id==='stages'){const s=JSON.stringify(p.new.data);if(s!==lastStages){state.stages=p.new.data;lastStages=s;rerenderKeepingDrawer();}}}finally{applyingRemote=false;}
+      })
+      .subscribe();
+  }catch(err){console.error('Realtime indisponível',err);}
+}
 
 function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.deals){if(!d.stages||!d.stages.length)d.stages=DEFAULT_STAGES.map(s=>({...s}));const rl=d.stages.find(s=>s.k==='relacionamento');if(rl&&rl.label==='Sem oportunidade. Manter Relacionamento')rl.label='Sem oportunidade agora.Manter Relacionamento';return d;}}}catch(e){}return{deals:SEED_DEALS.map(d=>Object.assign({updates:[],tasks:[],contracts:[]},d)),stages:DEFAULT_STAGES.map(s=>({...s})),persistOK:true};}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){state.persistOK=false;}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){state.persistOK=false;}if(cloud&&!applyingRemote){clearTimeout(syncTimer);syncTimer=setTimeout(syncToCloud,500);}}
 function esc(s){return(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function initials(n){n=(n||'').trim();if(!n)return'?';const p=n.split(/\s+/);return(p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();}
 function colorFor(n){let h=0;for(const c of(n||''))h=(h*31+c.charCodeAt(0))>>>0;return AVC[h%AVC.length];}
@@ -415,7 +483,7 @@ function setStageColor(k,color){const s=state.stages.find(x=>x.k===k);if(s){s.co
 function deleteStage(k){if(state.stages.length<=1)return;const idx=state.stages.findIndex(s=>s.k===k);if(idx<0)return;const fb=(state.stages.find(s=>s.k!==k)||{}).k;state.deals.forEach(d=>{if(d.etapa===k)d.etapa=fb;});state.stages.splice(idx,1);save();}
 function addClientToGroup(name){
   const key=addingTo.slice(addingTo.indexOf(':')+1);
-  const obj={id:nextId(state.deals),grupo:name,etapa:(state.stages[0]||{}).k,vidas:0,operadora:'',corretora:'',origem:'',consultora:'',frente:'',obs:'',updates:[],tasks:[],contracts:[]};
+  const obj={id:uid(),grupo:name,etapa:(state.stages[0]||{}).k,vidas:0,operadora:'',corretora:'',origem:'',consultora:'',frente:'',obs:'',updates:[],tasks:[],contracts:[]};
   if(cliBy==='etapa')obj.etapa=key;else if(key!=='__none')obj.consultora=key;
   state.deals.push(obj);save();toast('Cliente adicionado');
 }
@@ -638,7 +706,7 @@ function nextId(a){return Math.max(0,...a.map(x=>x.id))+1;}
 function openDealModal(opts){opts=opts||{};['d_grupo','d_vidas','d_operadora','d_origem','d_consultora','d_frente'].forEach(i=>$(i).value='');$('d_etapa').innerHTML=state.stages.map(s=>`<option value="${s.k}">${esc(s.label)}</option>`).join('');if(opts.etapa)$('d_etapa').value=opts.etapa;if(opts.consultora)$('d_consultora').value=opts.consultora;$('modalDeal').classList.add('open');$('d_grupo').focus();}
 $('d_cancel').onclick=()=>$('modalDeal').classList.remove('open');
 $('modalDeal').onclick=e=>{if(e.target===$('modalDeal'))$('modalDeal').classList.remove('open');};
-$('d_save').onclick=()=>{const g=$('d_grupo').value.trim();if(!g){toast('Informe o nome do cliente');return;}state.deals.push({id:nextId(state.deals),grupo:g,etapa:$('d_etapa').value,vidas:parseInt($('d_vidas').value)||0,operadora:$('d_operadora').value.trim(),corretora:'',origem:$('d_origem').value.trim(),consultora:$('d_consultora').value.trim(),frente:$('d_frente').value.trim(),obs:'',updates:[],tasks:[],contracts:[]});save();$('modalDeal').classList.remove('open');renderAll();toast('Cliente adicionado');};
+$('d_save').onclick=()=>{const g=$('d_grupo').value.trim();if(!g){toast('Informe o nome do cliente');return;}state.deals.push({id:uid(),grupo:g,etapa:$('d_etapa').value,vidas:parseInt($('d_vidas').value)||0,operadora:$('d_operadora').value.trim(),corretora:'',origem:$('d_origem').value.trim(),consultora:$('d_consultora').value.trim(),frente:$('d_frente').value.trim(),obs:'',updates:[],tasks:[],contracts:[]});save();$('modalDeal').classList.remove('open');renderAll();toast('Cliente adicionado');};
 
 function openTaskModal(){$('t_deal').innerHTML=state.deals.slice().sort((a,b)=>(a.grupo||'').localeCompare(b.grupo||'')).map(d=>`<option value="${d.id}">${esc(d.grupo)}</option>`).join('');$('t_type').innerHTML=Object.entries(TT).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');$('t_title').value='';$('t_due').value=today();$('modalTask').classList.add('open');$('t_title').focus();}
 $('t_cancel').onclick=()=>$('modalTask').classList.remove('open');
@@ -672,7 +740,7 @@ function importExcel(file){
     rows.forEach(row=>{const grupo=(row[cG]||'').toString().trim();if(!grupo)return;
       const ex=state.deals.find(d=>(d.grupo||'').trim().toLowerCase()===grupo.toLowerCase());
       const f={grupo:grupo,origem:cO?(row[cO]||'').toString().trim():'',corretora:cC?(row[cC]||'').toString().trim():'',operadora:cOp?(row[cOp]||'').toString().trim():'',vidas:cV?(parseInt((row[cV]||'0').toString().replace(/[^\d]/g,''))||0):0,etapa:cE?mapEtapaText(row[cE]):'naoalocado',frente:cF?(row[cF]||'').toString().trim():'',consultora:cCo?cleanCons(row[cCo]):''};
-      if(ex){Object.assign(ex,f);upd++;}else{state.deals.push(Object.assign({id:nextId(state.deals),obs:'',updates:[],tasks:[],contracts:[]},f));added++;}
+      if(ex){Object.assign(ex,f);upd++;}else{state.deals.push(Object.assign({id:uid(),obs:'',updates:[],tasks:[],contracts:[]},f));added++;}
     });
     save();renderAll();toast(added+' adicionados · '+upd+' atualizados');
   }catch(err){console.error(err);toast('Erro ao ler o Excel');}};
@@ -690,7 +758,7 @@ $('search').addEventListener('input',renderAll);
 
 function renderAll(){
   if(nav==='inicio')renderInicio();else renderClientes();}
-renderAll();
+boot();
 if(!state.persistOK||(()=>{try{localStorage.setItem('_t','1');localStorage.removeItem('_t');return false;}catch(e){return true;}})()){setTimeout(()=>toast('Salvamento local indisponível aqui. Funciona publicado no GitHub Pages — use Exportar pra backup.'),700);}
 </script>
 </body>
